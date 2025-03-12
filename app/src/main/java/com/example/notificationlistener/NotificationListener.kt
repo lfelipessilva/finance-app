@@ -9,7 +9,14 @@ import java.util.*
 
 class NotificationListener : NotificationListenerService() {
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+
+        Log.d("NotificationListener", "Connected")
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        Log.d("NotificationListener", "Notification Posted")
         super.onNotificationPosted(sbn)
 
         sbn?.let {
@@ -73,7 +80,8 @@ class NotificationListener : NotificationListenerService() {
      * Gets the current timestamp in the format yyyy-MM-dd HH:mm:ss
      */
     private fun getCurrentTimestamp(): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
         return sdf.format(Date())
     }
 }
