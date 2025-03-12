@@ -1,5 +1,6 @@
 package com.example.notificationlistener
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Method to check notification access permission
+    @SuppressLint("SetTextI18n")
     private fun checkNotificationAccessPermission(tvNotificationStatus: TextView) {
         val isNotificationAccessGranted =
             NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)

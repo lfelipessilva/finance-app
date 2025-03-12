@@ -11,7 +11,7 @@
         android:id="@+id/tvNotificationStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Checking notification access..."
+        android:text="@string/checking_notification_access"
         android:textSize="18sp" />
 
     <!-- Button to navigate the user to enable notification access -->
@@ -19,6 +19,6 @@
         android:id="@+id/btnEnableNotifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable Notification Access" />
+        android:text="@string/enable_notification_access" />
 
 </LinearLayout>
