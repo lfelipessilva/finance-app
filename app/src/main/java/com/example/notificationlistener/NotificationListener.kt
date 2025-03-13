@@ -10,7 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class NotificationListener : NotificationListenerService() {
 
@@ -18,19 +20,25 @@ class NotificationListener : NotificationListenerService() {
         super.onNotificationPosted(sbn)
 
         sbn?.let {
-            val notification = it.notification
-            val extras = notification.extras
-            val text = extras.getString("android.text") ?: ""
-            val title = extras.getString("android.title") ?: ""
+            val notification = it.notification.extras
+            val title = notification.getString("android.title") ?: ""
+            val text = notification.getString("android.text") ?: ""
+            val subtext = notification.getString("android.subtext") ?: ""
+            val app = notification.getString("android.appName") ?: ""
 
-            saveNotification(title, text, getCurrentTimestamp())
+            Log.d("NotificationListener", title)
+            Log.d("NotificationListener", text)
+            Log.d("NotificationListener", subtext)
+            Log.d("NotificationListener", app)
 
-            if (text.contains("APROVADA", ignoreCase = false)) {
-                val value = extractValue(text)
-                val name = extractName(text)
+            saveNotification(title, text, subtext, app, getCurrentTimestamp())
+
+            if (subtext.contains("APROVADA", ignoreCase = false)) {
+                val value = extractValue(subtext)
+                val name = extractName(subtext)
                 val timestamp = getCurrentTimestamp()
 
-                val notificationData = Expense(name, value,  "Sem categoria",timestamp)
+                val notificationData = Expense(name, value, "Sem categoria", timestamp)
                 ApiClient.sendNotification(notificationData) { success ->
                     if (success) {
                         Log.d("NotificationListener", "Notification with data sent successfully!")
@@ -42,10 +50,22 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
-    private fun saveNotification(title: String, text: String, timestamp: String) {
+    private fun saveNotification(
+        title: String,
+        subtext: String,
+        text: String,
+        app: String,
+        timestamp: String
+    ) {
         Log.d("NotificationListener", timestamp)
         val db = AppDatabase.getDatabase(applicationContext)
-        val notification = Notification(title = title, text = text, timestamp = timestamp)
+        val notification = Notification(
+            title = title,
+            text = text,
+            subtext = subtext,
+            app = app,
+            timestamp = timestamp
+        )
 
         CoroutineScope(Dispatchers.IO).launch {
             db.notificationDao().insertNotification(notification)

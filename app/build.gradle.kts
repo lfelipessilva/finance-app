@@ -18,6 +18,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -49,4 +57,9 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.room.compiler)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 }

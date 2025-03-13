@@ -9,6 +9,6 @@ interface NotificationDao {
     @Insert
     suspend fun insertNotification(notification: Notification)
 
-    @Query("SELECT * FROM notification")
+    @Query("SELECT * FROM notification WHERE subtext != '' ORDER BY timestamp DESC")
     suspend fun getAllNotifications(): List<Notification>
 }
