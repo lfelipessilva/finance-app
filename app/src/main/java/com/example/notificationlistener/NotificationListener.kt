@@ -3,44 +3,33 @@ package com.example.notificationlistener
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import com.example.notificationlistener.database.AppDatabase
+import com.example.notificationlistener.database.Notification
 import com.example.notificationlistener.entity.Expense
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NotificationListener : NotificationListenerService() {
 
-    override fun onListenerConnected() {
-        super.onListenerConnected()
-
-        Log.d("NotificationListener", "Connected")
-    }
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        Log.d("NotificationListener", "Notification Posted")
         super.onNotificationPosted(sbn)
 
         sbn?.let {
-            val packageName = it.packageName
             val notification = it.notification
             val extras = notification.extras
-            val title = extras.getString("android.title") ?: "No Title"
-            val text = extras.getString("android.text") ?: "No Text"
+            val text = extras.getString("android.text") ?: ""
+            val title = extras.getString("android.title") ?: ""
 
-            Log.d("NotificationListener", "Notification from $packageName: $title - $text")
+            saveNotification(title, text, getCurrentTimestamp())
 
-            // Check if the notification text contains the word "APROVADA"
             if (text.contains("APROVADA", ignoreCase = false)) {
-                // Extract the value, name, and timestamp
                 val value = extractValue(text)
                 val name = extractName(text)
                 val timestamp = getCurrentTimestamp()
 
-                // Log the extracted data
-                Log.d("NotificationListener", "Extracted Value: $value")
-                Log.d("NotificationListener", "Extracted Name: $name")
-                Log.d("NotificationListener", "Timestamp: $timestamp")
-
-                // Send the extracted data to the server
                 val notificationData = Expense(name, value,  "Sem categoria",timestamp)
                 ApiClient.sendNotification(notificationData) { success ->
                     if (success) {
@@ -50,6 +39,17 @@ class NotificationListener : NotificationListenerService() {
                     }
                 }
             }
+        }
+    }
+
+    private fun saveNotification(title: String, text: String, timestamp: String) {
+        Log.d("NotificationListener", timestamp)
+        val db = AppDatabase.getDatabase(applicationContext)
+        val notification = Notification(title = title, text = text, timestamp = timestamp)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            db.notificationDao().insertNotification(notification)
+            Log.d("NotificationListener", "Notification saved to database")
         }
     }
 

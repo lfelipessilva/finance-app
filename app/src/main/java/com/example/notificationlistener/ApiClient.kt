@@ -31,7 +31,7 @@ object ApiClient {
             json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("$BASE_URL/expenses") // Change to your actual endpoint
+            .url("$BASE_URL/expenses")
             .post(requestBody)
             .build()
 

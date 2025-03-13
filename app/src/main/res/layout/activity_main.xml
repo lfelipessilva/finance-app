@@ -7,18 +7,51 @@
     android:padding="16dp">
 
     <!-- TextView to display the notification access status -->
-    <TextView
-        android:id="@+id/tvNotificationStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/checking_notification_access"
-        android:textSize="18sp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvNotificationData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="8dp"
+                android:paddingBottom="16dp"
+                android:text="No notifications saved."
+                android:textSize="16sp" />
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Button to navigate the user to enable notification access -->
-    <Button
-        android:id="@+id/btnEnableNotifications"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/enable_notification_access" />
+        android:gravity="bottom|center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvNotificationStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/checking_notification_access"
+            android:textSize="18sp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="16px" />
+
+        <Button
+            android:id="@+id/btnEnableNotifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_notification_access" />
+    </LinearLayout>
 
 </LinearLayout>
