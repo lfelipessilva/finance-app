@@ -25,18 +25,21 @@ class NotificationListener : NotificationListenerService() {
             val title = notification.getString("android.title") ?: ""
             val text = notification.getString("android.subtext") ?: ""
 
+            if (!title.contains("Compra no crédito")) return
+
             val bankNotification = BankNotification(
                 title,
                 text,
-                timestamp = getCurrentTimestamp(),
-                bank = if(text.contains("com o cartão final"))  "inter" else "nubank"
+                bank = if (text.contains("com o cartão final")) "inter" else "nubank"
             )
 
             val expense = Expense(
                 name = bankNotification.extractName(),
                 value = bankNotification.extractValue(),
-                "Sem categoria",
-                bankNotification.timestamp
+                bank = bankNotification.bank,
+                card = bankNotification.extractCard(),
+                timestamp = getCurrentTimestamp(),
+                category = "Sem categoria",
             )
 
             ApiClient.sendNotification(expense) { success ->

@@ -23,6 +23,8 @@ object ApiClient {
         val json = JSONObject().apply {
             put("name", notificationData.name)
             put("value", notificationData.value)
+            put("card", notificationData.card)
+            put("bank", notificationData.bank)
             put("category", notificationData.category)
             put("timestamp", notificationData.timestamp)
         }
