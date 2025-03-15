@@ -25,7 +25,7 @@ object ApiClient {
             put("value", notificationData.value)
             put("card", notificationData.card)
             put("bank", notificationData.bank)
-            put("category", notificationData.category)
+            put("categoryId", notificationData.categoryId)
             put("timestamp", notificationData.timestamp)
         }
 

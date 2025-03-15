@@ -5,6 +5,6 @@ data class Expense(
     val value: Number,
     val bank: String,
     val card: String,
-    val category: String,
+    val categoryId: Number,
     val timestamp: String,
 )

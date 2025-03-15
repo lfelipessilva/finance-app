@@ -28,8 +28,7 @@ class NotificationListener : NotificationListenerService() {
             if (!title.contains("Compra no crédito")) return
 
             val bankNotification = BankNotification(
-                title,
-                text,
+                text = text,
                 bank = if (text.contains("com o cartão final")) "inter" else "nubank"
             )
 
@@ -39,7 +38,7 @@ class NotificationListener : NotificationListenerService() {
                 bank = bankNotification.bank,
                 card = bankNotification.extractCard(),
                 timestamp = getCurrentTimestamp(),
-                category = "Sem categoria",
+                categoryId = 1
             )
 
             ApiClient.sendNotification(expense) { success ->
