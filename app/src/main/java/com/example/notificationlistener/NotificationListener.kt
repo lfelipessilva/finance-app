@@ -41,6 +41,14 @@ class NotificationListener : NotificationListenerService() {
                 categoryId = 1
             )
 
+            saveExpense(
+                name = expense.name,
+                value = expense.value,
+                bank = expense.bank,
+                card = expense.card,
+                timestamp = expense.timestamp,
+            )
+
             ApiClient.sendNotification(expense) { success ->
                 if (success) {
                     Log.d("NotificationListener", "Notification with data sent successfully!")
@@ -51,32 +59,29 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
-    private fun saveNotification(
-        title: String,
-        subtext: String,
-        text: String,
-        app: String,
+    private fun saveExpense(
+        name: String,
+        value: Int,
+        bank: String,
+        card: String,
         timestamp: String
     ) {
-        Log.d("NotificationListener", timestamp)
         val db = AppDatabase.getDatabase(applicationContext)
-        val notification = Notification(
-            title = title,
-            text = text,
-            subtext = subtext,
-            app = app,
+        val expense = com.example.notificationlistener.database.Expense(
+            name = name,
+            value = value,
+            bank = bank,
+            card = card,
             timestamp = timestamp
         )
 
         CoroutineScope(Dispatchers.IO).launch {
-            db.notificationDao().insertNotification(notification)
-            Log.d("NotificationListener", "Notification saved to database")
+            db.expenseDao().insertExpense(expense)
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
-        Log.d("NotificationListener", "Notification removed: ${sbn?.packageName}")
     }
 
     private fun getCurrentTimestamp(): String {

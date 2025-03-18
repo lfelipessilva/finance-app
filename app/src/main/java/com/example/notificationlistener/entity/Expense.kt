@@ -2,9 +2,9 @@ package com.example.notificationlistener.entity
 
 data class Expense(
     val name: String,
-    val value: Number,
+    val value: Int,
     val bank: String,
     val card: String,
-    val categoryId: Number,
+    val categoryId: Int,
     val timestamp: String,
 )

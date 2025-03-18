@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Notification::class], version = 1)
+@Database(entities = [Notification::class, Expense::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
+    abstract fun expenseDao(): ExpenseDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null
@@ -22,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
             Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
-                "notifications"
-            ).build()
+                "db"
+            ).fallbackToDestructiveMigration().build()
     }
 }

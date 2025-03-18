@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.notificationlistener.database.AppDatabase
+import com.example.notificationlistener.database.Expense
 import com.example.notificationlistener.database.Notification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,22 +43,22 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun NotificationScreen() {
-        val notifications = remember { mutableStateListOf<Notification>() }
+        val expenses = remember { mutableStateListOf<Expense>() }
         val notificationStatus = remember { mutableStateOf("Checking notification access...") }
 
-        loadNotifications(notifications)
+        loadExpenses(expenses)
         checkNotificationAccessPermission(notificationStatus)
 
         Column(Modifier.padding(16.dp)) {
             Text(text = "Notifications", style = MaterialTheme.typography.titleLarge)
 
-            if (notifications.isNotEmpty()) {
+            if (expenses.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(notifications) { notification ->
-                        NotificationItem(notification)
+                    items(expenses) { notification ->
+                        ExpenseItem(notification)
                     }
                 }
             } else {
@@ -84,21 +85,21 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun NotificationItem(notification: Notification) {
+    fun ExpenseItem(expense: Expense) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = "titulo: ${notification.title}", style = MaterialTheme.typography.bodyLarge)
-            Text(text = "texto: ${notification.text}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "subtexto: ${notification.subtext}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "nome: ${expense.name}", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "value: ${expense.value}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "value: ${expense.bank}", style = MaterialTheme.typography.bodyMedium)
 
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "app: ${notification.app}", style = MaterialTheme.typography.bodySmall)
+                Text(text = "app: ${expense.card}", style = MaterialTheme.typography.bodySmall)
                 Text(
-                    text = "hora: ${notification.timestamp}",
+                    text = "hora: ${expense.timestamp}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -106,15 +107,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun loadNotifications(notifications: MutableList<Notification>) {
+    private fun loadExpenses(expenses: MutableList<Expense>) {
         val database = AppDatabase.getDatabase(this)
 
         lifecycleScope.launch {
-            val notificationList = database.notificationDao().getAllNotifications()
+            val expenseList = database.expenseDao().getAllExpenses()
 
             withContext(Dispatchers.Main) {
-                notifications.clear()
-                notifications.addAll(notificationList)
+                expenses.clear()
+                expenses.addAll(expenseList )
             }
         }
     }
