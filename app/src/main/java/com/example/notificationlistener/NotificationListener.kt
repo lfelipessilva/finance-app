@@ -17,43 +17,74 @@ import java.util.TimeZone
 
 class NotificationListener : NotificationListenerService() {
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+
+        val notifications = getActiveNotifications()
+        notifications.forEach {
+
+            val notification = it.notification.extras
+            val title = notification.getString("android.title") ?: ""
+            val text = notification.getString("android.text") ?: ""
+
+
+            if (title.contains("Compra no crédito")) {
+                val bankNotification = BankNotification(
+                    text = text,
+                    bank = if (text.contains("com o cartão final")) "inter" else "nubank"
+                )
+
+                val expense = Expense(
+                    name = bankNotification.extractName(),
+                    value = bankNotification.extractValue(),
+                    bank = bankNotification.bank,
+                    card = bankNotification.extractCard(),
+                    timestamp = getCurrentTimestamp(),
+                    categoryId = 1
+                )
+
+                Log.d("ActiveNotification", expense.toString())
+            }
+        }
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
 
         sbn?.let {
             val notification = it.notification.extras
             val title = notification.getString("android.title") ?: ""
-            val text = notification.getString("android.subtext") ?: ""
+            val text = notification.getString("android.text") ?: ""
 
-            if (!title.contains("Compra no crédito")) return
+            if (title.contains("Compra no crédito")) {
+                val bankNotification = BankNotification(
+                    text = text,
+                    bank = if (text.contains("com o cartão final")) "inter" else "nubank"
+                )
 
-            val bankNotification = BankNotification(
-                text = text,
-                bank = if (text.contains("com o cartão final")) "inter" else "nubank"
-            )
+                val expense = Expense(
+                    name = bankNotification.extractName(),
+                    value = bankNotification.extractValue(),
+                    bank = bankNotification.bank,
+                    card = bankNotification.extractCard(),
+                    timestamp = getCurrentTimestamp(),
+                    categoryId = 1
+                )
 
-            val expense = Expense(
-                name = bankNotification.extractName(),
-                value = bankNotification.extractValue(),
-                bank = bankNotification.bank,
-                card = bankNotification.extractCard(),
-                timestamp = getCurrentTimestamp(),
-                categoryId = 1
-            )
+                saveExpense(
+                    name = expense.name,
+                    value = expense.value,
+                    bank = expense.bank,
+                    card = expense.card,
+                    timestamp = expense.timestamp,
+                )
 
-            saveExpense(
-                name = expense.name,
-                value = expense.value,
-                bank = expense.bank,
-                card = expense.card,
-                timestamp = expense.timestamp,
-            )
-
-            ApiClient.sendNotification(expense) { success ->
-                if (success) {
-                    Log.d("NotificationListener", "Notification with data sent successfully!")
-                } else {
-                    Log.e("NotificationListener", "Failed to send notification with data.")
+                ApiClient.sendNotification(expense) { success ->
+                    if (success) {
+                        Log.d("NotificationListener", "Notification with data sent successfully!")
+                    } else {
+                        Log.e("NotificationListener", "Failed to send notification with data.")
+                    }
                 }
             }
         }

@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
         ) {
             Text(text = "nome: ${expense.name}", style = MaterialTheme.typography.bodyLarge)
             Text(text = "value: ${expense.value}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "value: ${expense.bank}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "bank: ${expense.bank}", style = MaterialTheme.typography.bodyMedium)
 
             Row(
                 Modifier.fillMaxWidth(),
