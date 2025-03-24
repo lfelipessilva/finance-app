@@ -4,7 +4,6 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.example.notificationlistener.database.AppDatabase
-import com.example.notificationlistener.database.Notification
 import com.example.notificationlistener.entity.BankNotification
 import com.example.notificationlistener.entity.Expense
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +15,6 @@ import java.util.Locale
 import java.util.TimeZone
 
 class NotificationListener : NotificationListenerService() {
-
     override fun onListenerConnected() {
         super.onListenerConnected()
 

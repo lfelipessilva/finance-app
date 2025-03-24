@@ -5,7 +5,9 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Notification Listener">
+        android:label="Notification Listener"
+        android:usesCleartextTraffic="true"
+        >
         <activity
             android:name=".MainActivity"
             android:exported="true"
