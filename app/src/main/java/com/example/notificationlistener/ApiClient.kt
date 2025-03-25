@@ -1,6 +1,5 @@
 package com.example.notificationlistener
 
-import androidx.compose.material3.TimeInput
 import com.example.notificationlistener.entity.Expense
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -12,12 +11,13 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://finance-server-vr5e.onrender.com/api/v1"
+    private const val BASE_URL = "https://xenacious-tern-luis-finance-e5c5636e.koyeb.app/api/v1"
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.MINUTES)
         .writeTimeout(5, TimeUnit.MINUTES)
         .readTimeout(5, TimeUnit.MINUTES)
+        .callTimeout(5, TimeUnit.MINUTES)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY // Log request & response body
         })

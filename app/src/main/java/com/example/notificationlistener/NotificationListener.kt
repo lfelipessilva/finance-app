@@ -29,7 +29,7 @@ class NotificationListener : NotificationListenerService() {
             if (title.contains("Compra no crédito")) {
                 val bankNotification = BankNotification(
                     text = text,
-                    bank = if (text.contains("com o cartão final")) "inter" else "nubank"
+                    bank = if (text.contains("com o cartão final")) "Inter" else "Nubank"
                 )
 
                 val expense = Expense(
@@ -57,7 +57,7 @@ class NotificationListener : NotificationListenerService() {
             if (title.contains("Compra no crédito")) {
                 val bankNotification = BankNotification(
                     text = text,
-                    bank = if (text.contains("com o cartão final")) "inter" else "nubank"
+                    bank = if (text.contains("com o cartão final")) "Inter" else "Nubank"
                 )
 
                 val expense = Expense(
