@@ -7,6 +7,10 @@ import com.example.notificationlistener.data.remote.entity.Expense
 import com.example.notificationlistener.data.remote.entity.Tag
 import org.json.JSONObject
 import org.json.JSONArray
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object ExpenseService {
 
@@ -73,10 +77,16 @@ object ExpenseService {
 
         filters.category?.let { params.add("category=$it") }
         filters.name?.let { params.add("name=$it") }
-        filters.startDate?.let { params.add("timestamp_end=$it") }
-        filters.endDate?.let { params.add("timestamp_start=$it") }
+        filters.timestampStart?.let { params.add("timestamp_start=${convertMillisToIso8601WithTime(it)}") }
+        filters.timestampEnd?.let { params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}") }
 
         return params.joinToString("&")
+    }
+
+    fun convertMillisToIso8601WithTime(millis: Long): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        return formatter.format(Date(millis))
     }
 
     private fun toJson(expense: CreateExpenseDto): JSONObject {

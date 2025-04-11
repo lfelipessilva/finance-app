@@ -20,6 +20,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.notificationlistener.data.remote.dto.ListExpenseFilterDto
+import com.example.notificationlistener.ui.component.DatePickerFieldToModal
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,35 +53,28 @@ fun ExpenseFilterSheetContent(
 ) {
     var category by remember { mutableStateOf(initialFilters.category ?: "") }
     var name by remember { mutableStateOf(initialFilters.name ?: "") }
-    var startDate by remember { mutableStateOf(initialFilters.startDate ?: "") }
-    var endDate by remember { mutableStateOf(initialFilters.endDate ?: "") }
+    var timestampStart by remember { mutableStateOf(initialFilters.timestampStart) }
+    var timestampEnd by remember { mutableStateOf(initialFilters.timestampEnd)}
 
     Column(Modifier.padding(16.dp)) {
         OutlinedTextField(
-            value = category,
-            onValueChange = { category = it },
-            label = { "Category" },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { "Name" },
+            label = { Text("Name") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = startDate,
-            onValueChange = { startDate = it },
-            label = { "Start Date (YYYY-MM-DD)" },
+        DatePickerFieldToModal(
+            value = timestampStart,
+            onValueChange = { timestampStart = it },
+            label = "Start date",
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = endDate,
-            onValueChange = { endDate = it },
-            label = { "End Date (YYYY-MM-DD)" },
+        DatePickerFieldToModal(
+            value = timestampEnd,
+            onValueChange = { timestampEnd = it },
+            label = "End date",
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -92,8 +86,8 @@ fun ExpenseFilterSheetContent(
                     ListExpenseFilterDto(
                         category = category.ifBlank { null },
                         name = name.ifBlank { null },
-                        startDate = startDate.ifBlank { null },
-                        endDate = endDate.ifBlank { null }
+                        timestampStart = timestampStart,
+                        timestampEnd = timestampEnd
                     )
                 )
             },
