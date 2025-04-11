@@ -5,6 +5,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.example.notificationlistener.data.AppDatabase
 import com.example.notificationlistener.data.remote.ExpenseService
+import com.example.notificationlistener.data.remote.dto.CreateExpenseDto
 import com.example.notificationlistener.data.remote.entity.BankNotification
 import com.example.notificationlistener.data.remote.entity.Expense
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +34,7 @@ class NotificationListener : NotificationListenerService() {
                     bank = if (text.contains("com o cartão final")) "Inter" else "Nubank"
                 )
 
-                val expense = Expense(
+                val expense = CreateExpenseDto(
                     name = bankNotification.extractName(),
                     value = bankNotification.extractValue(),
                     bank = bankNotification.bank,
@@ -61,7 +62,7 @@ class NotificationListener : NotificationListenerService() {
                     bank = if (text.contains("com o cartão final")) "Inter" else "Nubank"
                 )
 
-                val expense = Expense(
+                val expense = CreateExpenseDto(
                     name = bankNotification.extractName(),
                     value = bankNotification.extractValue(),
                     bank = bankNotification.bank,

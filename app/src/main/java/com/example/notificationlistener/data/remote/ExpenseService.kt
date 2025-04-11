@@ -1,19 +1,22 @@
 package com.example.notificationlistener.data.remote
 
+import com.example.notificationlistener.data.remote.dto.CreateExpenseDto
+import com.example.notificationlistener.data.remote.entity.Category
 import com.example.notificationlistener.data.remote.entity.Expense
+import com.example.notificationlistener.data.remote.entity.Tag
 import org.json.JSONObject
 import org.json.JSONArray
 
 object ExpenseService {
 
-    fun createExpense(expense: Expense, callback: (Boolean) -> Unit) {
+    fun createExpense(expense: CreateExpenseDto, callback: (Boolean) -> Unit) {
         val json = toJson(expense)
         ApiClient.post("/expenses", json) { success, _ ->
             callback(success)
         }
     }
 
-    fun updateExpense(id: String, expense: Expense, callback: (Boolean) -> Unit) {
+    fun updateExpense(id: String, expense: CreateExpenseDto, callback: (Boolean) -> Unit) {
         val json = toJson(expense)
         ApiClient.put("/expenses/$id", json) { success, _ ->
             callback(success)
@@ -39,7 +42,7 @@ object ExpenseService {
     }
 
     fun getAllExpenses(callback: (Boolean, List<Expense>) -> Unit) {
-        ApiClient.get("/expenses") { success, response ->
+        ApiClient.get("/expenses?order_by=timestamp&order_direction=desc") { success, response ->
             if (success && response != null) {
                 try {
                     val root = JSONObject(response)
@@ -63,7 +66,7 @@ object ExpenseService {
         }
     }
 
-    private fun toJson(expense: Expense): JSONObject {
+    private fun toJson(expense: CreateExpenseDto): JSONObject {
         return JSONObject().apply {
             put("name", expense.name)
             put("value", expense.value)
@@ -74,13 +77,45 @@ object ExpenseService {
     }
 
     private fun fromJson(json: JSONObject): Expense {
-        return Expense(
-            name = json.optString("name"),
-            value = json.optInt("value"),
-            card = json.optString("card"),
-            bank = json.optString("bank"),
-            timestamp = json.optString("timestamp"),
-            categoryId = json.optInt("category_id")
-        )
+            val categoryJson = json.optJSONObject("category")
+            val category = if (categoryJson != null) {
+                Category(
+                    id = categoryJson.optInt("id"),
+                    name = categoryJson.optString("name"),
+                    color = categoryJson.optString("color"),
+                    icon = categoryJson.optString("icon")
+                )
+            } else {
+                null
+            }
+
+            val tagsJsonArray = json.optJSONArray("tags")
+            val tags = mutableListOf<Tag>()
+            if (tagsJsonArray != null) {
+                for (i in 0 until tagsJsonArray.length()) {
+                    val tagJson = tagsJsonArray.optJSONObject(i)
+                    if (tagJson != null) {
+                        tags.add(
+                            Tag(
+                                id = tagJson.optInt("id"),
+                                name = tagJson.optString("name"),
+                                color = tagJson.optString("color")
+                            )
+                        )
+                    }
+                }
+            }
+
+            return Expense(
+                id = json.optInt("id"),
+                name = json.optString("name"),
+                value = json.optInt("value"),
+                card = json.optString("card"),
+                bank = json.optString("bank"),
+                timestamp = json.optString("timestamp"),
+                categoryId = json.optInt("category_id"),
+                category = category,
+                tags = tags
+            )
     }
 }

@@ -1,61 +1,52 @@
 package com.example.notificationlistener
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.lifecycleScope
-import com.example.notificationlistener.data.AppDatabase
-import com.example.notificationlistener.data.local.entity.Expense
-import com.example.notificationlistener.views.ExpenseListScreen
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.notificationlistener.ui.ExpenseListScreen
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.notificationlistener.views.SentToServerScreen
+import com.example.notificationlistener.ui.BottomBar
+import com.example.notificationlistener.ui.SentToServerScreen
+import com.example.notificationlistener.ui.BottomNavItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-                val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "list") {
-                    composable("list") {
-                        ExpenseListScreen(onNavigateToSent = {
-                            navController.navigate("sent")
-                        })
+            val navController = rememberNavController()
+
+            val bottomNavItems = listOf(
+                BottomNavItem("Gastos", "expenses", Icons.Default.Done),
+                BottomNavItem("Sent", "sent", Icons.Default.Notifications)
+            )
+
+            Scaffold(
+                bottomBar = {
+                    BottomBar(navController, bottomNavItems)
+                }
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = "expenses",
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    composable("expenses") {
+                        ExpenseListScreen()
                     }
                     composable("sent") {
-                        SentToServerScreen(onBackToList = {
-                            navController.popBackStack("list", inclusive = false)
-                        })
+                        SentToServerScreen()
                     }
                 }
+            }
         }
     }
 }

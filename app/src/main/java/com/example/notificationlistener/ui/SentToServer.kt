@@ -1,7 +1,6 @@
 // SentToFinadScreen.kt
-package com.example.notificationlistener.views
+package com.example.notificationlistener.ui
 
-import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
@@ -14,10 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.notificationlistener.data.remote.entity.Expense
+import com.example.notificationlistener.views.SentToFinadViewModel
 
 @Composable
-fun SentToServerScreen(onBackToList: () -> Unit) {
+fun SentToServerScreen() {
     val context = LocalContext.current
     val viewModel: SentToFinadViewModel = viewModel()
     val expenses = viewModel.expenses
