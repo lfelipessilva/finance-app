@@ -114,7 +114,8 @@ object ExpenseService {
                 id = categoryJson.optInt("id"),
                 name = categoryJson.optString("name"),
                 color = categoryJson.optString("color"),
-                icon = categoryJson.optString("icon")
+                icon = categoryJson.optString("icon"),
+                url = categoryJson.optString("icon")
             )
         } else {
             null

@@ -4,18 +4,21 @@ import ExpenseFilterSheetContent
 import FilterExpenseBottomSheet
 import android.util.Log
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import com.example.notificationlistener.data.remote.ExpenseService
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,10 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import com.example.notificationlistener.data.remote.dto.ListExpenseFilterDto
 import com.example.notificationlistener.data.remote.entity.Expense
+import com.example.notificationlistener.ui.component.SvgIcon
 import java.text.NumberFormat
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,9 +148,24 @@ fun ExpenseItem(expense: Expense) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                if (!expense.category?.color.isNullOrBlank()) {
-                    Canvas(modifier = Modifier.size(48.dp)) {
-                        drawCircle(color = Color(expense.category.color.toColorInt()))
+                expense.category?.let {
+                    if (expense.category.id == 0) return@let
+
+                    Box(
+                        modifier = Modifier
+                            .clip(
+                                CircleShape
+                            )
+                            .size(48.dp)
+                            .background(Color(expense.category.color.toColorInt()))
+                            , contentAlignment = Alignment.Center
+                    ) {
+                        SvgIcon(
+                            iconUrl = expense.category.url,
+                            label = expense.category.name,
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
                     }
                 }
 

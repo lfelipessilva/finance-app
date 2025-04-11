@@ -68,5 +68,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.15.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+        implementation("io.coil-kt:coil-compose:2.5.0")
+        implementation("io.coil-kt:coil-svg:2.5.0")
 
 }
