@@ -1,9 +1,7 @@
 package com.example.notificationlistener
 
 import android.content.Intent
-import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,110 +24,139 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.notificationlistener.database.AppDatabase
-import com.example.notificationlistener.database.Expense
-import com.example.notificationlistener.database.Notification
+import com.example.notificationlistener.data.AppDatabase
+import com.example.notificationlistener.data.local.entity.Expense
+import com.example.notificationlistener.views.ExpenseListScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.notificationlistener.views.SentToServerScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NotificationScreen()
-        }
-    }
-
-    @Composable
-    fun NotificationScreen() {
-        val expenses = remember { mutableStateListOf<Expense>() }
-        val notificationStatus = remember { mutableStateOf("Checking notification access...") }
-
-        loadExpenses(expenses)
-        checkNotificationAccessPermission(notificationStatus)
-
-        Column(Modifier.padding(16.dp)) {
-            Text(text = "Notifications", style = MaterialTheme.typography.titleLarge)
-
-            if (expenses.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(expenses) { notification ->
-                        ExpenseItem(notification)
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "list") {
+                    composable("list") {
+                        ExpenseListScreen(onNavigateToSent = {
+                            navController.navigate("sent")
+                        })
+                    }
+                    composable("sent") {
+                        SentToServerScreen(onBackToList = {
+                            navController.popBackStack("list", inclusive = false)
+                        })
                     }
                 }
-            } else {
-                Text(text = "No notifications saved.")
-            }
-
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = notificationStatus.value, style = MaterialTheme.typography.bodyMedium)
-
-                Button(
-                    onClick = {
-                        startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                    }
-                ) {
-                    Text(text = "Enable Notification Access")
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun ExpenseItem(expense: Expense) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(text = "nome: ${expense.name}", style = MaterialTheme.typography.bodyLarge)
-            Text(text = "value: ${expense.value}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "bank: ${expense.bank}", style = MaterialTheme.typography.bodyMedium)
-
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "app: ${expense.card}", style = MaterialTheme.typography.bodySmall)
-                Text(
-                    text = "hora: ${expense.timestamp}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            HorizontalDivider()
-        }
-    }
-
-    private fun loadExpenses(expenses: MutableList<Expense>) {
-        val database = AppDatabase.getDatabase(this)
-
-        lifecycleScope.launch {
-            val expenseList = database.expenseDao().getAllExpenses()
-
-            withContext(Dispatchers.Main) {
-                expenses.clear()
-                expenses.addAll(expenseList )
-            }
-        }
-    }
-
-    private fun checkNotificationAccessPermission(notificationStatus: MutableState<String>) {
-        val isNotificationAccessGranted =
-            NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
-
-        if (isNotificationAccessGranted) {
-            notificationStatus.value = "App has access to notifications."
-        } else {
-            notificationStatus.value = "App does not have access to notifications."
         }
     }
 }
+
+//class MainActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//            NotificationScreen()
+//        }
+//    }
+//
+//    @Composable
+//    fun NotificationScreen() {
+//        val expenses = remember { mutableStateListOf<Expense>() }
+//        val notificationStatus = remember { mutableStateOf("Checking notification access...") }
+//
+//        loadExpenses(expenses)
+//        checkNotificationAccessPermission(notificationStatus)
+//
+//        Column(Modifier.padding(16.dp)) {
+//            Text(text = "Notifications", style = MaterialTheme.typography.titleLarge)
+//
+//            if (expenses.isNotEmpty()) {
+//                LazyColumn(
+//                    modifier = Modifier.weight(1f),
+//                    verticalArrangement = Arrangement.spacedBy(12.dp)
+//                ) {
+//                    items(expenses) { notification ->
+//                        ExpenseItem(notification)
+//                    }
+//                }
+//            } else {
+//                Text(text = "No notifications saved.")
+//            }
+//
+//            Column(
+//                Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 16.dp),
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                Text(text = notificationStatus.value, style = MaterialTheme.typography.bodyMedium)
+//
+//                Button(
+//                    onClick = {
+//                        startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+//                    }
+//                ) {
+//                    Text(text = "Enable Notification Access")
+//                }
+//            }
+//        }
+//    }
+//
+//    @Composable
+//    fun ExpenseItem(expense: Expense) {
+//        Column(
+//            verticalArrangement = Arrangement.spacedBy(4.dp)
+//        ) {
+//            Text(text = "nome: ${expense.name}", style = MaterialTheme.typography.bodyLarge)
+//            Text(text = "value: ${expense.value}", style = MaterialTheme.typography.bodyMedium)
+//            Text(text = "bank: ${expense.bank}", style = MaterialTheme.typography.bodyMedium)
+//
+//            Row(
+//                Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                Text(text = "app: ${expense.card}", style = MaterialTheme.typography.bodySmall)
+//                Text(
+//                    text = "hora: ${expense.timestamp}",
+//                    style = MaterialTheme.typography.bodySmall
+//                )
+//            }
+//            HorizontalDivider()
+//        }
+//    }
+//
+//    private fun loadExpenses(expenses: MutableList<Expense>) {
+//        val database = AppDatabase.getDatabase(this)
+//
+//        lifecycleScope.launch {
+//            val expenseList = database.expenseDao().getAllExpenses()
+//
+//            withContext(Dispatchers.Main) {
+//                expenses.clear()
+//                expenses.addAll(expenseList )
+//            }
+//        }
+//    }
+//
+//    private fun checkNotificationAccessPermission(notificationStatus: MutableState<String>) {
+//        val isNotificationAccessGranted =
+//            NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+//
+//        if (isNotificationAccessGranted) {
+//            notificationStatus.value = "App has access to notifications."
+//        } else {
+//            notificationStatus.value = "App does not have access to notifications."
+//        }
+//    }
+//}
 
 

@@ -1,4 +1,4 @@
-package com.example.notificationlistener.entity
+package com.example.notificationlistener.data.remote.entity
 
 data class Expense(
     val name: String,

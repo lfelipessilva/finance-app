@@ -1,4 +1,4 @@
-package com.example.notificationlistener.database
+package com.example.notificationlistener.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

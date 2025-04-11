@@ -3,9 +3,10 @@ package com.example.notificationlistener
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import com.example.notificationlistener.database.AppDatabase
-import com.example.notificationlistener.entity.BankNotification
-import com.example.notificationlistener.entity.Expense
+import com.example.notificationlistener.data.AppDatabase
+import com.example.notificationlistener.data.remote.ExpenseService
+import com.example.notificationlistener.data.remote.entity.BankNotification
+import com.example.notificationlistener.data.remote.entity.Expense
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -77,7 +78,7 @@ class NotificationListener : NotificationListenerService() {
                     timestamp = expense.timestamp,
                 )
 
-                ApiClient.sendNotification(expense) { success ->
+                ExpenseService.createExpense(expense) { success ->
                     if (success) {
                         Log.d("NotificationListener", "Notification with data sent successfully!")
                     } else {
@@ -96,7 +97,7 @@ class NotificationListener : NotificationListenerService() {
         timestamp: String
     ) {
         val db = AppDatabase.getDatabase(applicationContext)
-        val expense = com.example.notificationlistener.database.Expense(
+        val expense = com.example.notificationlistener.data.local.entity.Expense (
             name = name,
             value = value,
             bank = bank,

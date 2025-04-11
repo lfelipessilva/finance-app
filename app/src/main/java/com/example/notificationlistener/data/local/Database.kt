@@ -1,9 +1,13 @@
-package com.example.notificationlistener.database
+package com.example.notificationlistener.data
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.notificationlistener.data.local.dao.ExpenseDao
+import com.example.notificationlistener.data.local.dao.NotificationDao
+import com.example.notificationlistener.data.local.entity.Expense
+import com.example.notificationlistener.data.local.entity.Notification
 
 @Database(entities = [Notification::class, Expense::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
