@@ -1,5 +1,6 @@
 package com.example.notificationlistener.ui
 
+import FilterExpenseBottomSheet
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import com.example.notificationlistener.data.remote.ExpenseService
@@ -7,6 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +25,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseListScreen() {
     var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
@@ -34,19 +38,41 @@ fun ExpenseListScreen() {
         }
     }
 
-    Scaffold() { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator()
-            } else {
-                LazyColumn {
-                    items(expenses) { expense ->
-                        ExpenseItem(expense)
+    FilterExpenseBottomSheet(
+        sheetContent = {
+            Text(text = "bottom sheet")
+        }
+    ) { openSheet ->
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text("Expenses")
+                    },
+                    actions = {
+                        IconButton(onClick = openSheet) {
+                            Icon(
+                                imageVector = Icons.Default.Build,
+                                contentDescription = "Open Filter"
+                            )
+                        }
+                    }
+                )
+            },
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator()
+                } else {
+                    LazyColumn {
+                        items(expenses) { expense ->
+                            ExpenseItem(expense)
+                        }
                     }
                 }
             }
