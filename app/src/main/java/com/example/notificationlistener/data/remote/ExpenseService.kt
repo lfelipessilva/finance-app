@@ -2,11 +2,12 @@ package com.example.notificationlistener.data.remote
 
 import com.example.notificationlistener.data.remote.dto.CreateExpenseDto
 import com.example.notificationlistener.data.remote.dto.ListExpenseFilterDto
+import com.example.notificationlistener.data.remote.dto.ListExpenseResponseDto
 import com.example.notificationlistener.data.remote.entity.Category
 import com.example.notificationlistener.data.remote.entity.Expense
 import com.example.notificationlistener.data.remote.entity.Tag
+import com.squareup.moshi.Moshi
 import org.json.JSONObject
-import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -46,28 +47,25 @@ object ExpenseService {
         }
     }
 
-    fun getAllExpenses(filters: ListExpenseFilterDto,callback: (Boolean, List<Expense>) -> Unit) {
+    fun getAllExpenses(
+        filters: ListExpenseFilterDto,
+        callback: (Boolean, ListExpenseResponseDto?) -> Unit
+    ) {
         val queryParams = buildQueryParams(filters)
         ApiClient.get("/expenses?$queryParams") { success, response ->
             if (success && response != null) {
                 try {
-                    val root = JSONObject(response)
-                    val dataArray = root.getJSONArray("data")
+                    val moshi = Moshi.Builder().build()
+                    val adapter = moshi.adapter(ListExpenseResponseDto::class.java)
 
-                    val expenses = mutableListOf<Expense>()
-                    for (i in 0 until dataArray.length()) {
-                        val item = dataArray.getJSONObject(i)
-                        expenses.add(fromJson(item))
-                    }
-
-                    callback(true, expenses)
-
+                    val body = adapter.fromJson(response)
+                    callback(true, body)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    callback(false, emptyList())
+                    callback(false, null)
                 }
             } else {
-                callback(false, emptyList())
+                callback(false, null)
             }
         }
     }
@@ -75,9 +73,19 @@ object ExpenseService {
     private fun buildQueryParams(filters: ListExpenseFilterDto): String {
         val params = mutableListOf("order_by=timestamp", "order_direction=desc")
 
+        filters.page.let { params.add("page=$it") }
+        filters.pageSize.let { params.add("page_size=$it") }
         filters.category?.let { params.add("category=$it") }
         filters.name?.let { params.add("name=$it") }
-        filters.timestampStart?.let { params.add("timestamp_start=${convertMillisToIso8601WithTime(it)}") }
+        filters.timestampStart?.let {
+            params.add(
+                "timestamp_start=${
+                    convertMillisToIso8601WithTime(
+                        it
+                    )
+                }"
+            )
+        }
         filters.timestampEnd?.let { params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}") }
 
         return params.joinToString("&")
@@ -100,45 +108,45 @@ object ExpenseService {
     }
 
     private fun fromJson(json: JSONObject): Expense {
-            val categoryJson = json.optJSONObject("category")
-            val category = if (categoryJson != null) {
-                Category(
-                    id = categoryJson.optInt("id"),
-                    name = categoryJson.optString("name"),
-                    color = categoryJson.optString("color"),
-                    icon = categoryJson.optString("icon")
-                )
-            } else {
-                null
-            }
+        val categoryJson = json.optJSONObject("category")
+        val category = if (categoryJson != null) {
+            Category(
+                id = categoryJson.optInt("id"),
+                name = categoryJson.optString("name"),
+                color = categoryJson.optString("color"),
+                icon = categoryJson.optString("icon")
+            )
+        } else {
+            null
+        }
 
-            val tagsJsonArray = json.optJSONArray("tags")
-            val tags = mutableListOf<Tag>()
-            if (tagsJsonArray != null) {
-                for (i in 0 until tagsJsonArray.length()) {
-                    val tagJson = tagsJsonArray.optJSONObject(i)
-                    if (tagJson != null) {
-                        tags.add(
-                            Tag(
-                                id = tagJson.optInt("id"),
-                                name = tagJson.optString("name"),
-                                color = tagJson.optString("color")
-                            )
+        val tagsJsonArray = json.optJSONArray("tags")
+        val tags = mutableListOf<Tag>()
+        if (tagsJsonArray != null) {
+            for (i in 0 until tagsJsonArray.length()) {
+                val tagJson = tagsJsonArray.optJSONObject(i)
+                if (tagJson != null) {
+                    tags.add(
+                        Tag(
+                            id = tagJson.optInt("id"),
+                            name = tagJson.optString("name"),
+                            color = tagJson.optString("color")
                         )
-                    }
+                    )
                 }
             }
+        }
 
-            return Expense(
-                id = json.optInt("id"),
-                name = json.optString("name"),
-                value = json.optInt("value"),
-                card = json.optString("card"),
-                bank = json.optString("bank"),
-                timestamp = json.optString("timestamp"),
-                categoryId = json.optInt("category_id"),
-                category = category,
-                tags = tags
-            )
+        return Expense(
+            id = json.optInt("id"),
+            name = json.optString("name"),
+            value = json.optInt("value"),
+            card = json.optString("card"),
+            bank = json.optString("bank"),
+            timestamp = json.optString("timestamp"),
+            categoryId = json.optInt("category_id"),
+            category = category,
+            tags = tags
+        )
     }
 }

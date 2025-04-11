@@ -108,8 +108,3 @@ fun convertMillisToBrazilianDate(millis: Long): String {
     formatter.timeZone = TimeZone.getTimeZone("UTC")
     return formatter.format(Date(millis))
 }
-
-fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale("pt", "BR"))
-    return formatter.format(Date(millis))
-}

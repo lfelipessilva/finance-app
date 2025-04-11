@@ -2,12 +2,14 @@ package com.example.notificationlistener.ui
 
 import ExpenseFilterSheetContent
 import FilterExpenseBottomSheet
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import com.example.notificationlistener.data.remote.ExpenseService
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
@@ -29,14 +31,28 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseListScreen() {
+    val listState = rememberLazyListState()
     var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
     var filters by remember { mutableStateOf(ListExpenseFilterDto()) }
     var isLoading by remember { mutableStateOf(true) }
+    var isFetchingMore by remember { mutableStateOf(false) }
+    var endReached by remember { mutableStateOf(false) }
 
     LaunchedEffect(filters) {
         ExpenseService.getAllExpenses(filters) { success, data ->
-            if (success) expenses = data
+            if (success) {
+                if (isFetchingMore) {
+                    expenses = expenses + data!!.data
+                } else {
+                    expenses = data!!.data
+                    endReached = false
+                }
+
+                if (expenses.size == data.summary.total) endReached = true
+            }
+
             isLoading = false
+            isFetchingMore = false
         }
     }
 
@@ -79,9 +95,26 @@ fun ExpenseListScreen() {
                         CircularProgressIndicator()
                     }
                 } else {
-                    LazyColumn {
-                        items(expenses) { expense ->
+                    LazyColumn(state = listState) {
+                        itemsIndexed(expenses) { index, expense ->
                             ExpenseItem(expense)
+
+                            if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
+                                Log.d("Scroll", "End reached")
+                                filters = filters.copy(page = filters.page + 1)
+                                isFetchingMore = true
+                            }
+                        }
+
+                        if (!endReached) {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(Modifier.padding(16.dp))
+                                }
+                            }
                         }
                     }
                 }
@@ -112,7 +145,7 @@ fun ExpenseItem(expense: Expense) {
             ) {
                 if (!expense.category?.color.isNullOrBlank()) {
                     Canvas(modifier = Modifier.size(48.dp)) {
-                        drawCircle(color = Color(expense.category?.color!!.toColorInt()))
+                        drawCircle(color = Color(expense.category.color.toColorInt()))
                     }
                 }
 
