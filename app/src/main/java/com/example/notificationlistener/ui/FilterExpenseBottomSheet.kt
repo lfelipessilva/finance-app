@@ -95,5 +95,23 @@ fun ExpenseFilterSheetContent(
         ) {
             Text("Apply Filters")
         }
+
+        Button(
+            onClick = {
+                // Reset UI state
+                category = ""
+                name = ""
+                timestampStart = null
+                timestampEnd = null
+
+                // Trigger filter with cleared values
+                onApply(ListExpenseFilterDto())
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Text("Reset Filters")
+        }
     }
 }
