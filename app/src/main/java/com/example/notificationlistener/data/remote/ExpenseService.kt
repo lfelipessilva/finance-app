@@ -1,6 +1,7 @@
 package com.example.notificationlistener.data.remote
 
 import com.example.notificationlistener.data.remote.dto.CreateExpenseDto
+import com.example.notificationlistener.data.remote.dto.ListExpenseFilterDto
 import com.example.notificationlistener.data.remote.entity.Category
 import com.example.notificationlistener.data.remote.entity.Expense
 import com.example.notificationlistener.data.remote.entity.Tag
@@ -41,8 +42,9 @@ object ExpenseService {
         }
     }
 
-    fun getAllExpenses(callback: (Boolean, List<Expense>) -> Unit) {
-        ApiClient.get("/expenses?order_by=timestamp&order_direction=desc") { success, response ->
+    fun getAllExpenses(filters: ListExpenseFilterDto,callback: (Boolean, List<Expense>) -> Unit) {
+        val queryParams = buildQueryParams(filters)
+        ApiClient.get("/expenses?$queryParams") { success, response ->
             if (success && response != null) {
                 try {
                     val root = JSONObject(response)
@@ -64,6 +66,17 @@ object ExpenseService {
                 callback(false, emptyList())
             }
         }
+    }
+
+    private fun buildQueryParams(filters: ListExpenseFilterDto): String {
+        val params = mutableListOf("order_by=timestamp", "order_direction=desc")
+
+        filters.category?.let { params.add("category=$it") }
+        filters.name?.let { params.add("name=$it") }
+        filters.startDate?.let { params.add("timestamp_end=$it") }
+        filters.endDate?.let { params.add("timestamp_start=$it") }
+
+        return params.joinToString("&")
     }
 
     private fun toJson(expense: CreateExpenseDto): JSONObject {

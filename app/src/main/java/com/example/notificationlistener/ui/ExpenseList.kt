@@ -1,8 +1,8 @@
 package com.example.notificationlistener.ui
 
+import ExpenseFilterSheetContent
 import FilterExpenseBottomSheet
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import com.example.notificationlistener.data.remote.ExpenseService
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import com.example.notificationlistener.data.remote.dto.ListExpenseFilterDto
 import com.example.notificationlistener.data.remote.entity.Expense
 import java.text.NumberFormat
 import java.time.ZonedDateTime
@@ -29,10 +30,11 @@ import java.util.Locale
 @Composable
 fun ExpenseListScreen() {
     var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
+    var filters by remember { mutableStateOf(ListExpenseFilterDto()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
-        ExpenseService.getAllExpenses { success, data ->
+    LaunchedEffect(filters) {
+        ExpenseService.getAllExpenses(filters) { success, data ->
             if (success) expenses = data
             isLoading = false
         }
@@ -40,7 +42,13 @@ fun ExpenseListScreen() {
 
     FilterExpenseBottomSheet(
         sheetContent = {
-            Text(text = "bottom sheet")
+            ExpenseFilterSheetContent(
+                initialFilters = filters,
+                onApply = { newFilters ->
+                    isLoading = true
+                    filters = newFilters
+                }
+            )
         }
     ) { openSheet ->
         Scaffold(
@@ -67,7 +75,9 @@ fun ExpenseListScreen() {
                     .padding(horizontal = 16.dp)
             ) {
                 if (isLoading) {
-                    CircularProgressIndicator()
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 } else {
                     LazyColumn {
                         items(expenses) { expense ->
