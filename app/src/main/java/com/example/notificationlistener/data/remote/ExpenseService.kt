@@ -1,11 +1,16 @@
 package com.example.notificationlistener.data.remote
 
 import com.example.notificationlistener.data.remote.dto.CreateExpenseDto
+import com.example.notificationlistener.data.remote.dto.ListExpenseFilterDto
 import com.example.notificationlistener.data.remote.entity.Category
 import com.example.notificationlistener.data.remote.entity.Expense
 import com.example.notificationlistener.data.remote.entity.Tag
 import org.json.JSONObject
 import org.json.JSONArray
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object ExpenseService {
 
@@ -41,8 +46,9 @@ object ExpenseService {
         }
     }
 
-    fun getAllExpenses(callback: (Boolean, List<Expense>) -> Unit) {
-        ApiClient.get("/expenses?order_by=timestamp&order_direction=desc") { success, response ->
+    fun getAllExpenses(filters: ListExpenseFilterDto,callback: (Boolean, List<Expense>) -> Unit) {
+        val queryParams = buildQueryParams(filters)
+        ApiClient.get("/expenses?$queryParams") { success, response ->
             if (success && response != null) {
                 try {
                     val root = JSONObject(response)
@@ -64,6 +70,23 @@ object ExpenseService {
                 callback(false, emptyList())
             }
         }
+    }
+
+    private fun buildQueryParams(filters: ListExpenseFilterDto): String {
+        val params = mutableListOf("order_by=timestamp", "order_direction=desc")
+
+        filters.category?.let { params.add("category=$it") }
+        filters.name?.let { params.add("name=$it") }
+        filters.timestampStart?.let { params.add("timestamp_start=${convertMillisToIso8601WithTime(it)}") }
+        filters.timestampEnd?.let { params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}") }
+
+        return params.joinToString("&")
+    }
+
+    fun convertMillisToIso8601WithTime(millis: Long): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        return formatter.format(Date(millis))
     }
 
     private fun toJson(expense: CreateExpenseDto): JSONObject {
