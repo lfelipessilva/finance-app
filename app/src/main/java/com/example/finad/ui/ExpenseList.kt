@@ -89,7 +89,6 @@ fun ExpenseListScreen() {
         ) { padding ->
             Column(
                 modifier = Modifier
-                    .padding(padding)
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
@@ -103,7 +102,6 @@ fun ExpenseListScreen() {
                             ExpenseItem(expense)
 
                             if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
-                                Log.d("Scroll", "End reached")
                                 filters = filters.copy(page = filters.page + 1)
                                 isFetchingMore = true
                             }
@@ -130,7 +128,7 @@ fun ExpenseListScreen() {
 fun ExpenseItem(expense: Expense) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.background
         ),
         shape = RectangleShape,
         modifier = Modifier

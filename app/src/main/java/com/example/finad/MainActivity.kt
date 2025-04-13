@@ -17,33 +17,36 @@ import androidx.navigation.compose.rememberNavController
 import com.example.finad.ui.BottomBar
 import com.example.finad.ui.SentToServerScreen
 import com.example.finad.ui.BottomNavItem
+import com.example.finad.ui.theme.FinadTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
+            FinadTheme {
+                val navController = rememberNavController()
 
-            val bottomNavItems = listOf(
-                BottomNavItem("Gastos", "expenses", Icons.Default.Done),
-                BottomNavItem("Sent", "sent", Icons.Default.Notifications)
-            )
+                val bottomNavItems = listOf(
+                    BottomNavItem("Gastos", "expenses", Icons.Default.Done),
+                    BottomNavItem("Sent", "sent", Icons.Default.Notifications)
+                )
 
-            Scaffold(
-                bottomBar = {
-                    BottomBar(navController, bottomNavItems)
-                }
-            ) { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = "expenses",
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    composable("expenses") {
-                        ExpenseListScreen()
+                Scaffold(
+                    bottomBar = {
+                        BottomBar(navController, bottomNavItems)
                     }
-                    composable("sent") {
-                        SentToServerScreen()
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "expenses",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("expenses") {
+                            ExpenseListScreen()
+                        }
+                        composable("sent") {
+                            SentToServerScreen()
+                        }
                     }
                 }
             }

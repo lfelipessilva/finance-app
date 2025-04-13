@@ -7,11 +7,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="Finad"
         android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.Finad"
         >
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:theme="@style/Theme.Finad">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

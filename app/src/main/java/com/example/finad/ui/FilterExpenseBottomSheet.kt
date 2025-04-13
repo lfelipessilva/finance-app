@@ -109,7 +109,6 @@ fun ExpenseFilterSheetContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
         ) {
             Text("Reset Filters")
         }
