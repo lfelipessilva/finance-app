@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.notificationlistener"
+    namespace = "com.example.finad"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.notificationlistener"
+        applicationId = "com.example.finad"
         minSdk = 33
         targetSdk = 35
         versionCode = 1

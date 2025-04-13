@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "notificationListener"
+rootProject.name = "Finad"
 include(":app")
  
