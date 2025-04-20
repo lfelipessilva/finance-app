@@ -72,7 +72,7 @@ object ExpenseService {
     }
 
     fun getAllExpensesByCategory(
-        filters: ListExpenseFilterDto,
+        filters: ListExpenseFilterDto?,
         callback: (Boolean, ListExpenseByCategoryResponseDto?) -> Unit
     ) {
         val queryParams = buildQueryParams(filters, listOf("order_by=total_value", "order_direction=desc"))
@@ -94,14 +94,14 @@ object ExpenseService {
         }
     }
 
-    private fun buildQueryParams(filters: ListExpenseFilterDto, start_filters: List<String>): String {
+    private fun buildQueryParams(filters: ListExpenseFilterDto?, start_filters: List<String>): String {
         val params = start_filters.toMutableList()
 
-        filters.page.let { params.add("page=$it") }
-        filters.pageSize.let { params.add("page_size=$it") }
-        filters.category?.let { params.add("category=$it") }
-        filters.name?.let { params.add("name=$it") }
-        filters.timestampStart?.let {
+        filters?.page.let { params.add("page=$it") }
+        filters?.pageSize.let { params.add("page_size=$it") }
+        filters?.category?.let { params.add("category=$it") }
+        filters?.name?.let { params.add("name=$it") }
+        filters?.timestampStart?.let {
             params.add(
                 "timestamp_start=${
                     convertMillisToIso8601WithTime(
@@ -110,7 +110,7 @@ object ExpenseService {
                 }"
             )
         }
-        filters.timestampEnd?.let { params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}") }
+        filters?.timestampEnd?.let { params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}") }
 
         return params.joinToString("&")
     }

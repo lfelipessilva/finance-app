@@ -61,7 +61,7 @@ fun ExpenseListScreen() {
             isFetchingMore = false
         }
 
-        ExpenseService.getAllExpensesByCategory(filters) { success, data ->
+        ExpenseService.getAllExpensesByCategory(filters.copy(category = null)) { success, data ->
             if (success) {
                 expensesByCategory = data!!.data
             }
@@ -79,7 +79,7 @@ fun ExpenseListScreen() {
         ) {
             BottomSheetScaffold(
                 scaffoldState = scaffoldState,
-                sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 24).dp)),
+                sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 28).dp)),
                 sheetContainerColor = MaterialTheme.colorScheme.background,
                 sheetContent = {
                     if (isLoading) {
@@ -90,7 +90,8 @@ fun ExpenseListScreen() {
                             CircularProgressIndicator()
                         }
                     } else {
-                        LazyColumn(state = listState,
+                        LazyColumn(
+                            state = listState,
                             modifier = Modifier.background(MaterialTheme.colorScheme.background),
                         ) {
                             itemsIndexed(expenses) { index, expense ->
@@ -116,7 +117,11 @@ fun ExpenseListScreen() {
                     }
                 }
             ) {
-                ExpenseByCategoryList(expensesByCategory, total)
+                ExpenseByCategoryList(expensesByCategory, total,
+                    currentFilters = filters, onApply = { newFilters ->
+                    isLoading = true
+                    filters = newFilters
+                })
             }
         }
     }
