@@ -14,3 +14,11 @@ data class Expense(
     val category: Category?,
     val tags: List<Tag>,
 )
+
+@JsonClass(generateAdapter = true)
+data class ExpenseByCategory(
+    val category_id: Int,
+    val category_name: String,
+    val category_color: String,
+    val total_value: Int,
+)
