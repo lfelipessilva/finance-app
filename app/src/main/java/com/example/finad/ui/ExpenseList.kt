@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
 import com.example.finad.data.remote.entity.Expense
@@ -33,6 +33,7 @@ import java.util.Locale
 @Composable
 fun ExpenseListScreen() {
     val scaffoldState = rememberBottomSheetScaffoldState()
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val listState = rememberLazyListState()
     var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
     var total by remember { mutableIntStateOf(0) }
@@ -78,7 +79,7 @@ fun ExpenseListScreen() {
         ) {
             BottomSheetScaffold(
                 scaffoldState = scaffoldState,
-                sheetPeekHeight = 260.dp,
+                sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 24).dp)),
                 sheetContainerColor = MaterialTheme.colorScheme.background,
                 sheetContent = {
                     if (isLoading) {
