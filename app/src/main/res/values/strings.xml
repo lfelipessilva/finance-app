@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">notificationListener</string>
+    <string name="app_name">Finad</string>
     <string name="checking_notification_access">Checking notification access…</string>
     <string name="enable_notification_access">Enable Notification Access</string>
 </resources>

@@ -1,17 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.notificationlistener">
+    package="com.example.finad">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Notification Listener"
+        android:label="Finad"
         android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.Finad"
         >
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:theme="@style/Theme.Finad">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
