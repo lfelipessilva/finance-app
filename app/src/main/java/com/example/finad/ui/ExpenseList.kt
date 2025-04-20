@@ -1,8 +1,5 @@
 package com.example.finad.ui
 
-import ExpenseFilterSheetContent
-import FilterExpenseBottomSheet
-import android.util.Log
 import androidx.compose.foundation.background
 import com.example.finad.data.remote.ExpenseService
 import androidx.compose.foundation.layout.*
@@ -11,8 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,9 +17,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
 import com.example.finad.data.remote.entity.Expense
+import com.example.finad.data.remote.entity.ExpenseByCategory
+import com.example.finad.ui.component.ExpenseByCategoryList
 import com.example.finad.ui.component.SvgIcon
 import java.text.NumberFormat
 import java.time.ZonedDateTime
@@ -34,8 +32,11 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseListScreen() {
+    val scaffoldState = rememberBottomSheetScaffoldState()
     val listState = rememberLazyListState()
     var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
+    var total by remember { mutableIntStateOf(0) }
+    var expensesByCategory by remember { mutableStateOf<List<ExpenseByCategory>>(emptyList()) }
     var filters by remember { mutableStateOf(ListExpenseFilterDto()) }
     var isLoading by remember { mutableStateOf(true) }
     var isFetchingMore by remember { mutableStateOf(false) }
@@ -51,74 +52,70 @@ fun ExpenseListScreen() {
                     endReached = false
                 }
 
+                total = data.sum
                 if (expenses.size == data.summary.total) endReached = true
             }
 
             isLoading = false
             isFetchingMore = false
         }
+
+        ExpenseService.getAllExpensesByCategory(filters) { success, data ->
+            if (success) {
+                expensesByCategory = data!!.data
+            }
+            isLoading = false
+        }
     }
 
-    FilterExpenseBottomSheet(
-        sheetContent = {
-            ExpenseFilterSheetContent(
-                initialFilters = filters,
-                onApply = { newFilters ->
-                    isLoading = true
-                    filters = newFilters
-                }
-            )
-        }
-    ) { openSheet ->
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text("Expenses")
-                    },
-                    actions = {
-                        IconButton(onClick = openSheet) {
-                            Icon(
-                                imageVector = Icons.Default.Build,
-                                contentDescription = "Open Filter"
-                            )
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            BottomSheetScaffold(
+                scaffoldState = scaffoldState,
+                sheetPeekHeight = 260.dp,
+                sheetContainerColor = MaterialTheme.colorScheme.background,
+                sheetContent = {
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
                         }
-                    }
-                )
-            },
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                if (isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    LazyColumn(state = listState) {
-                        itemsIndexed(expenses) { index, expense ->
-                            ExpenseItem(expense)
+                    } else {
+                        LazyColumn(state = listState,
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                        ) {
+                            itemsIndexed(expenses) { index, expense ->
+                                ExpenseItem(expense)
 
-                            if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
-                                filters = filters.copy(page = filters.page + 1)
-                                isFetchingMore = true
+                                if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
+                                    filters = filters.copy(page = filters.page + 1)
+                                    isFetchingMore = true
+                                }
                             }
-                        }
 
-                        if (!endReached) {
-                            item {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator(Modifier.padding(16.dp))
+                            if (!endReached) {
+                                item {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(Modifier.padding(16.dp))
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            ) {
+                ExpenseByCategoryList(expensesByCategory, total)
             }
         }
     }
@@ -133,7 +130,7 @@ fun ExpenseItem(expense: Expense) {
         shape = RectangleShape,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -153,8 +150,8 @@ fun ExpenseItem(expense: Expense) {
                                 CircleShape
                             )
                             .size(48.dp)
-                            .background(Color(expense.category.color.toColorInt()))
-                            , contentAlignment = Alignment.Center
+                            .background(Color(expense.category.color.toColorInt())),
+                        contentAlignment = Alignment.Center
                     ) {
                         SvgIcon(
                             iconUrl = expense.category.url,
