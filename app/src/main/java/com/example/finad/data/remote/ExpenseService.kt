@@ -23,11 +23,11 @@ object ExpenseService {
         }
     }
 
-    fun updateExpense(id: String, expense: CreateExpenseDto, callback: (Boolean) -> Unit) {
-        val json = toJson(expense)
-        ApiClient.put("/expenses/$id", json) { success, _ ->
-            callback(success)
-        }
+    fun updateExpense(id: String, expense: Expense, callback: (Boolean) -> Unit) {
+//        val json = toJson(expense)
+//        ApiClient.put("/expenses/$id", json) { success, _ ->
+//            callback(success)
+//        }
     }
 
     fun deleteExpense(id: String, callback: (Boolean) -> Unit) {

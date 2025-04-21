@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavController
+import androidx.navigation.compose.composable
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.data.remote.entity.ExpenseByCategory
@@ -31,7 +33,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseListScreen() {
+fun ExpenseListScreen(navController: NavController) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val listState = rememberLazyListState()
@@ -95,7 +97,7 @@ fun ExpenseListScreen() {
                             modifier = Modifier.background(MaterialTheme.colorScheme.background),
                         ) {
                             itemsIndexed(expenses) { index, expense ->
-                                ExpenseItem(expense)
+                                ExpenseItem(expense, onClick= { id -> navController.navigate("expenses/$id")})
 
                                 if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
                                     filters = filters.copy(page = filters.page + 1)
@@ -128,12 +130,16 @@ fun ExpenseListScreen() {
 }
 
 @Composable
-fun ExpenseItem(expense: Expense) {
+fun ExpenseItem(expense: Expense, onClick: (id: Int) -> Unit) {
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
         ),
         shape = RectangleShape,
+        onClick = {
+            onClick(expense.id)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)

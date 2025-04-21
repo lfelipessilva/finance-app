@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.finad.ui.BottomBar
 import com.example.finad.ui.SentToServerScreen
 import com.example.finad.ui.BottomNavItem
+import com.example.finad.ui.ExpenseDetailScreen
 import com.example.finad.ui.theme.FinadTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +43,11 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("expenses") {
-                            ExpenseListScreen()
+                            ExpenseListScreen(navController)
+                        }
+                        composable("expenses/{expenseId}") { backStackEntry ->
+                            val expenseId = backStackEntry.arguments?.getString("expenseId") ?: return@composable
+                            ExpenseDetailScreen(expenseId = expenseId, onBack = { navController.popBackStack() })
                         }
                         composable("sent") {
                             SentToServerScreen()
