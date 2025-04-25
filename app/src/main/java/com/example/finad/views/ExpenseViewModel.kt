@@ -36,9 +36,15 @@ class ExpenseViewModel() : ViewModel() {
     var isFetchingMore by mutableStateOf<Boolean>(false)
         private set
 
+    fun updateFilters(newFilters: ListExpenseFilterDto) {
+        filters = newFilters.copy(page = 1)
+        endReached = false
+
+        fetchExpenses()
+    }
+
     fun fetchExpenses() {
         viewModelScope.launch {
-            isLoading = true
             try {
                 ExpenseService.getAllExpenses(filters) {success, data ->
                     if(success) {

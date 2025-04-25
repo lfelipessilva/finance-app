@@ -8,6 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,61 +59,63 @@ fun ExpenseListScreen(
         expenseViewModel.fetchExpensesByCategory()
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            BottomSheetScaffold(
-                scaffoldState = scaffoldState,
-                sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 28).dp)),
-                sheetContainerColor = MaterialTheme.colorScheme.background,
-                sheetContent = {
-                    if (isLoading) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 28).dp)),
+        sheetContainerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            CustomTopAppBar(
+                title = "Olá, Luís",
+                onSearch = { navController.navigate("expense/filter") },
+                modifier = Modifier.background(
+                    MaterialTheme.colorScheme.surface
+                )
+            )
+        },
+        sheetContent = {
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                ) {
+                    itemsIndexed(expenses) { index, expense ->
+                        ExpenseItem(expense)
+
+                        if (index == expenses.lastIndex && !endReached && !isFetchingMore) {
+                            isFetchingMore = true
+                            expenseViewModel.fetchMoreExpenses()
                         }
-                    } else {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                        ) {
-                            itemsIndexed(expenses) { index, expense ->
-                                ExpenseItem(expense)
+                    }
 
-                                if (index == expenses.lastIndex && !endReached && !isFetchingMore) {
-                                    isFetchingMore = true
-                                    expenseViewModel.fetchMoreExpenses()
-                                }
-                            }
-
-                            if (!endReached) {
-                                item {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(Modifier.padding(16.dp))
-                                    }
-                                }
+                    if (!endReached) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(Modifier.padding(16.dp))
                             }
                         }
                     }
                 }
-            ) {
-                ExpenseByCategoryList(expensesByCategory, total,
-                    currentFilters = filters, onApply = { newFilters ->
-                    isLoading = true
-                    filters = newFilters
-                })
             }
         }
+    ) {
+        ExpenseByCategoryList(
+            expensesByCategory, total,
+            currentFilters = filters,
+            onApply = { newFilters ->
+                isLoading = true
+                expenseViewModel.updateFilters(newFilters)
+            }
+        )
     }
 }
 

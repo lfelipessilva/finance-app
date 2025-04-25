@@ -53,12 +53,12 @@ fun ExpenseByCategoryList(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if(isSelected) MaterialTheme.colorScheme.background else Color.Transparent)
+                        .background(if (isSelected) MaterialTheme.colorScheme.background else Color.Transparent)
                         .padding(vertical = 2.dp, horizontal = 8.dp)
                         .clickable() {
                             onApply(
-                                ListExpenseFilterDto(
-                                    category = if(isSelected) null else category.category_id.toString(),
+                                currentFilters.copy(
+                                    category = if (isSelected) null else category.category_id.toString(),
                                 )
                             )
                         }
