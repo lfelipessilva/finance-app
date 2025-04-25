@@ -18,6 +18,7 @@ import com.example.finad.ui.BottomBar
 import com.example.finad.ui.SentToServerScreen
 import com.example.finad.ui.BottomNavItem
 import com.example.finad.ui.theme.FinadTheme
+import com.example.finad.views.ExpenseViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             FinadTheme {
                 val navController = rememberNavController()
+                val expenseViewModel = ExpenseViewModel()
 
                 val bottomNavItems = listOf(
                     BottomNavItem("Gastos", "expenses", Icons.Default.Done),
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("expenses") {
-                            ExpenseListScreen()
+                            ExpenseListScreen(navController, expenseViewModel)
                         }
                         composable("sent") {
                             SentToServerScreen()

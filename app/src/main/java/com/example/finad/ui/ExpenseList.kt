@@ -19,11 +19,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.data.remote.entity.ExpenseByCategory
 import com.example.finad.ui.component.ExpenseByCategoryList
 import com.example.finad.ui.component.SvgIcon
+import com.example.finad.views.ExpenseViewModel
 import java.text.NumberFormat
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -31,42 +34,25 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseListScreen() {
+fun ExpenseListScreen(
+    navController: NavController,
+    expenseViewModel: ExpenseViewModel
+) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val listState = rememberLazyListState()
-    var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
-    var total by remember { mutableIntStateOf(0) }
-    var expensesByCategory by remember { mutableStateOf<List<ExpenseByCategory>>(emptyList()) }
-    var filters by remember { mutableStateOf(ListExpenseFilterDto()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isFetchingMore by remember { mutableStateOf(false) }
-    var endReached by remember { mutableStateOf(false) }
 
-    LaunchedEffect(filters) {
-        ExpenseService.getAllExpenses(filters) { success, data ->
-            if (success) {
-                if (isFetchingMore) {
-                    expenses = expenses + data!!.data
-                } else {
-                    expenses = data!!.data
-                    endReached = false
-                }
+    var expenses = expenseViewModel.expenses
+    var expensesByCategory = expenseViewModel.expensesByCategory
+    var total = expenseViewModel.total
+    var isLoading = expenseViewModel.isLoading
+    var isFetchingMore = expenseViewModel.isFetchingMore
+    var endReached = expenseViewModel.endReached
+    var filters = expenseViewModel.filters
 
-                total = data.sum
-                if (expenses.size == data.summary.total) endReached = true
-            }
-
-            isLoading = false
-            isFetchingMore = false
-        }
-
-        ExpenseService.getAllExpensesByCategory(filters.copy(category = null)) { success, data ->
-            if (success) {
-                expensesByCategory = data!!.data
-            }
-            isLoading = false
-        }
+    LaunchedEffect(Unit) {
+        expenseViewModel.fetchExpenses()
+        expenseViewModel.fetchExpensesByCategory()
     }
 
     Scaffold(
@@ -97,9 +83,9 @@ fun ExpenseListScreen() {
                             itemsIndexed(expenses) { index, expense ->
                                 ExpenseItem(expense)
 
-                                if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
-                                    filters = filters.copy(page = filters.page + 1)
+                                if (index == expenses.lastIndex && !endReached && !isFetchingMore) {
                                     isFetchingMore = true
+                                    expenseViewModel.fetchMoreExpenses()
                                 }
                             }
 
