@@ -18,6 +18,7 @@ import com.example.finad.ui.BottomBar
 import com.example.finad.ui.SentToServerScreen
 import com.example.finad.ui.BottomNavItem
 import com.example.finad.ui.ExpenseFilterScreen
+import com.example.finad.ui.LoginScreen
 import com.example.finad.ui.theme.FinadTheme
 import com.example.finad.views.ExpenseViewModel
 
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
 
                 val bottomNavItems = listOf(
                     BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
+                    BottomNavItem("Login", "login", Icons.Default.Done),
                     BottomNavItem("Sent", "sent", Icons.Default.Notifications)
                 )
 
@@ -41,9 +43,12 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "expense/list",
+                        startDestination = "login",
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable("login") {
+                            LoginScreen(onLoginSuccess = {})
+                        }
                         composable("expense/list") {
                             ExpenseListScreen(navController, expenseViewModel)
                         }
