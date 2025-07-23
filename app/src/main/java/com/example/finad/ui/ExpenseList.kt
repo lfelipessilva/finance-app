@@ -59,6 +59,20 @@ fun ExpenseListScreen(
         expenseViewModel.fetchExpensesByCategory()
     }
 
+    LaunchedEffect(listState, expenses.size, endReached, isFetchingMore) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleItem ->
+                if (
+                    lastVisibleItem != null &&
+                    lastVisibleItem >= expenses.lastIndex &&
+                    !endReached &&
+                    !isFetchingMore
+                ) {
+                    expenseViewModel.fetchMoreExpenses()
+                }
+            }
+    }
+
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 28).dp)),
@@ -87,14 +101,9 @@ fun ExpenseListScreen(
                 ) {
                     itemsIndexed(expenses) { index, expense ->
                         ExpenseItem(expense)
-
-                        if (index == expenses.lastIndex && !endReached && !isFetchingMore) {
-                            isFetchingMore = true
-                            expenseViewModel.fetchMoreExpenses()
-                        }
                     }
 
-                    if (!endReached) {
+                    if (!endReached && expenses.isNotEmpty()) {
                         item {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
