@@ -17,7 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.finad.ui.BottomBar
 import com.example.finad.ui.SentToServerScreen
 import com.example.finad.ui.BottomNavItem
+import com.example.finad.ui.ExpenseFilterScreen
+import com.example.finad.ui.LoginScreen
 import com.example.finad.ui.theme.FinadTheme
+import com.example.finad.views.ExpenseViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,9 +28,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             FinadTheme {
                 val navController = rememberNavController()
+                val expenseViewModel = ExpenseViewModel()
 
                 val bottomNavItems = listOf(
-                    BottomNavItem("Gastos", "expenses", Icons.Default.Done),
+                    BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
+                    BottomNavItem("Login", "login", Icons.Default.Done),
                     BottomNavItem("Sent", "sent", Icons.Default.Notifications)
                 )
 
@@ -38,11 +43,17 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "expenses",
+                        startDestination = "login",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("expenses") {
-                            ExpenseListScreen()
+                        composable("login") {
+                            LoginScreen(onLoginSuccess = {})
+                        }
+                        composable("expense/list") {
+                            ExpenseListScreen(navController, expenseViewModel)
+                        }
+                        composable("expense/filter") {
+                            ExpenseFilterScreen(navController, expenseViewModel)
                         }
                         composable("sent") {
                             SentToServerScreen()

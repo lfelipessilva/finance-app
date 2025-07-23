@@ -8,6 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,11 +23,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.data.remote.entity.ExpenseByCategory
 import com.example.finad.ui.component.ExpenseByCategoryList
 import com.example.finad.ui.component.SvgIcon
+import com.example.finad.views.ExpenseViewModel
 import java.text.NumberFormat
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -31,99 +38,93 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseListScreen() {
+fun ExpenseListScreen(
+    navController: NavController,
+    expenseViewModel: ExpenseViewModel
+) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val listState = rememberLazyListState()
-    var expenses by remember { mutableStateOf<List<Expense>>(emptyList()) }
-    var total by remember { mutableIntStateOf(0) }
-    var expensesByCategory by remember { mutableStateOf<List<ExpenseByCategory>>(emptyList()) }
-    var filters by remember { mutableStateOf(ListExpenseFilterDto()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isFetchingMore by remember { mutableStateOf(false) }
-    var endReached by remember { mutableStateOf(false) }
 
-    LaunchedEffect(filters) {
-        ExpenseService.getAllExpenses(filters) { success, data ->
-            if (success) {
-                if (isFetchingMore) {
-                    expenses = expenses + data!!.data
-                } else {
-                    expenses = data!!.data
-                    endReached = false
-                }
+    var expenses = expenseViewModel.expenses
+    var expensesByCategory = expenseViewModel.expensesByCategory
+    var total = expenseViewModel.total
+    var isLoading = expenseViewModel.isLoading
+    var isFetchingMore = expenseViewModel.isFetchingMore
+    var endReached = expenseViewModel.endReached
+    var filters = expenseViewModel.filters
 
-                total = data.sum
-                if (expenses.size == data.summary.total) endReached = true
-            }
-
-            isLoading = false
-            isFetchingMore = false
-        }
-
-        ExpenseService.getAllExpensesByCategory(filters.copy(category = null)) { success, data ->
-            if (success) {
-                expensesByCategory = data!!.data
-            }
-            isLoading = false
-        }
+    LaunchedEffect(Unit) {
+        expenseViewModel.fetchExpenses()
+        expenseViewModel.fetchExpensesByCategory()
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            BottomSheetScaffold(
-                scaffoldState = scaffoldState,
-                sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 28).dp)),
-                sheetContainerColor = MaterialTheme.colorScheme.background,
-                sheetContent = {
-                    if (isLoading) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    } else {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                        ) {
-                            itemsIndexed(expenses) { index, expense ->
-                                ExpenseItem(expense)
+    LaunchedEffect(listState, expenses.size, endReached, isFetchingMore) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleItem ->
+                if (
+                    lastVisibleItem != null &&
+                    lastVisibleItem >= expenses.lastIndex &&
+                    !endReached &&
+                    !isFetchingMore
+                ) {
+                    expenseViewModel.fetchMoreExpenses()
+                }
+            }
+    }
 
-                                if (index == expenses.lastIndex && !isFetchingMore && !endReached) {
-                                    filters = filters.copy(page = filters.page + 1)
-                                    isFetchingMore = true
-                                }
-                            }
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = (screenHeight - (142.dp + (expensesByCategory.size * 28).dp)),
+        sheetContainerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            CustomTopAppBar(
+                title = "Olá, Luís",
+                onSearch = { navController.navigate("expense/filter") },
+                modifier = Modifier.background(
+                    MaterialTheme.colorScheme.surface
+                )
+            )
+        },
+        sheetContent = {
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                ) {
+                    itemsIndexed(expenses) { index, expense ->
+                        ExpenseItem(expense)
+                    }
 
-                            if (!endReached) {
-                                item {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(Modifier.padding(16.dp))
-                                    }
-                                }
+                    if (!endReached && expenses.isNotEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(Modifier.padding(16.dp))
                             }
                         }
                     }
                 }
-            ) {
-                ExpenseByCategoryList(expensesByCategory, total,
-                    currentFilters = filters, onApply = { newFilters ->
-                    isLoading = true
-                    filters = newFilters
-                })
             }
         }
+    ) {
+        ExpenseByCategoryList(
+            expensesByCategory, total,
+            currentFilters = filters,
+            onApply = { newFilters ->
+                isLoading = true
+                expenseViewModel.updateFilters(newFilters)
+            }
+        )
     }
 }
 
