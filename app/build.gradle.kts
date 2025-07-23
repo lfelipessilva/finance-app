@@ -8,21 +8,6 @@ android {
     namespace = "com.example.finad"
     compileSdk = 35
 
-    signingConfigs {
-        create("my-debug") {
-            storeFile =file("/Users/luisfelipe/.android/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }
-
-    buildTypes {
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("my-debug")
-        }
-    }
-
     defaultConfig {
         applicationId = "com.example.finad"
         minSdk = 31
@@ -41,15 +26,6 @@ android {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -61,34 +37,36 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    // implementation(libs.androidx.appcompat) // Not needed for Compose-only apps
+    // implementation(libs.material) // Not needed if using Material3
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-    implementation(libs.androidx.room.common)
+    // Room dependencies
     implementation(libs.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.room.compiler)
+    // Compose dependencies
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation("com.squareup.moshi:moshi:1.15.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation("io.coil-kt:coil-svg:2.5.0")
+    // Moshi
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+    kapt(libs.moshi.kotlin.codegen)
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
+    // Google sign-in and credentials
     implementation(libs.play.services.auth)
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.runtime.ktx) // Only once
+    implementation(libs.androidx.credentials.v150)
+    implementation(libs.androidx.credentials.play.services.auth.v150)
+    implementation(libs.googleid.v111)
 }
