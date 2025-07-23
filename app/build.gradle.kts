@@ -8,9 +8,24 @@ android {
     namespace = "com.example.finad"
     compileSdk = 35
 
+    signingConfigs {
+        create("my-debug") {
+            storeFile =file("/Users/luisfelipe/.android/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("my-debug")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.finad"
-        minSdk = 33
+        minSdk = 31
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -70,7 +85,10 @@ dependencies {
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("io.coil-kt:coil-svg:2.5.0")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation(libs.play.services.auth)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 }
