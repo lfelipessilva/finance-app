@@ -32,6 +32,8 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import com.example.finad.data.remote.AuthService
+import com.example.finad.data.remote.ExpenseService
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -85,8 +87,14 @@ fun LoginScreen(
                     credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
                         val idToken = googleIdTokenCredential.idToken
+
+                        AuthService.authenticate(idToken) {success, data ->
+                        }
+
                         val name = googleIdTokenCredential.displayName
+
                         if (idToken != null) {
                             uiState = LoginUiState.Success(name)
                             isLoading = false

@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://xenacious-tern-luis-finance-e5c5636e.koyeb.app/api/v1"
+//    private const val BASE_URL = "https://xenacious-tern-luis-finance-e5c5636e.koyeb.app/api/v1"
+    private const val BASE_URL = "http://192.168.1.237:8080/api/v1"
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.MINUTES)
