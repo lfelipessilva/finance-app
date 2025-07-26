@@ -7,9 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.finad.data.remote.ExpenseService
+import com.example.finad.data.remote.CategoryService
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.data.remote.entity.ExpenseByCategory
+import com.example.finad.data.remote.entity.Category
 import kotlinx.coroutines.launch
 
 class ExpenseViewModel() : ViewModel() {
@@ -21,6 +23,9 @@ class ExpenseViewModel() : ViewModel() {
         private set
 
     var expensesByCategory by mutableStateOf<List<ExpenseByCategory>>(emptyList())
+        private set
+
+    var categories by mutableStateOf<List<Category>>(emptyList())
         private set
 
     var filters by mutableStateOf<ListExpenseFilterDto>(ListExpenseFilterDto())
@@ -38,6 +43,7 @@ class ExpenseViewModel() : ViewModel() {
     private var isInitialLoadDone = false
     private var isFetchingExpenses = false
     private var isFetchingCategories = false
+    private var isFetchingAllCategories = false
 
     fun updateFilters(newFilters: ListExpenseFilterDto) {
         if (isLoading) return
@@ -115,6 +121,24 @@ class ExpenseViewModel() : ViewModel() {
                 }
             } catch (e: Exception) {
                 isFetchingCategories = false
+            }
+        }
+    }
+
+    fun fetchAllCategories() {
+        if (isFetchingAllCategories) return
+
+        isFetchingAllCategories = true
+        viewModelScope.launch {
+            try {
+                CategoryService.getAllCategories { success, data ->
+                    if (success && data != null) {
+                        categories = data
+                    }
+                    isFetchingAllCategories = false
+                }
+            } catch (e: Exception) {
+                isFetchingAllCategories = false
             }
         }
     }

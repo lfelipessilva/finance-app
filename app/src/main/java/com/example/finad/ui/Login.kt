@@ -4,9 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -105,31 +103,65 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+    ) {
         when (val state = uiState) {
             is LoginUiState.Idle -> {
                 Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(32.dp)
                 ) {
-                    Button(onClick = { startGoogleSignIn() }, enabled = !isLoading) {
-                        Text("Entrar com Google")
-                    }
+                    Text(
+                            text = "Bem-vindo ao Finad",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(bottom = 24.dp)
+                    )
+                    Button(
+                            onClick = { startGoogleSignIn() },
+                            enabled = !isLoading,
+                            colors =
+                                    ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ),
+                            modifier = Modifier.padding(vertical = 8.dp)
+                    ) { Text("Entrar com Google") }
                 }
             }
             is LoginUiState.Loading -> {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
             is LoginUiState.Success -> {
-                Text(text = "Bem-vindo, ${state.userName ?: "usuário"}!", fontSize = 22.sp)
+                Text(
+                        text = "Bem-vindo, ${state.userName ?: "usuário"}!",
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                )
             }
             is LoginUiState.Error -> {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(state.message, color = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { startGoogleSignIn() }, enabled = !isLoading) {
-                        Text("Tentar novamente")
-                    }
+                Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(32.dp)
+                ) {
+                    Text(
+                            state.message,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Button(
+                            onClick = { startGoogleSignIn() },
+                            enabled = !isLoading,
+                            colors =
+                                    ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                    )
+                    ) { Text("Tentar novamente") }
                 }
             }
         }
@@ -138,10 +170,10 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                     modifier =
                             Modifier.fillMaxSize()
                                     .background(
-                                            MaterialTheme.colorScheme.background.copy(alpha = 0.5f)
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
                                     ),
                     contentAlignment = Alignment.Center
-            ) { CircularProgressIndicator() }
+            ) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
         }
     }
 }
