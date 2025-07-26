@@ -39,7 +39,7 @@ sealed class LoginUiState {
 }
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(onLoginSuccess: () -> Unit) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -84,6 +84,8 @@ fun LoginScreen() {
                         if (success && data != null) {
                             val sessionManager = SessionManager.getInstance(context)
                             sessionManager.saveSession(data.accessToken, data.user)
+
+                            onLoginSuccess()
                         } else {
                             uiState = LoginUiState.Error("Falha na autenticação com o servidor.")
                             isLoading = false

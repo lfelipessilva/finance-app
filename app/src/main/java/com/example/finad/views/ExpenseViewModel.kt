@@ -17,7 +17,6 @@ class ExpenseViewModel() : ViewModel() {
     var expenses by mutableStateOf<List<Expense>>(emptyList())
         private set
 
-
     var total by mutableIntStateOf(0)
         private set
 
@@ -36,61 +35,96 @@ class ExpenseViewModel() : ViewModel() {
     var isFetchingMore by mutableStateOf<Boolean>(false)
         private set
 
+    private var isInitialLoadDone = false
+    private var isFetchingExpenses = false
+    private var isFetchingCategories = false
+
     fun updateFilters(newFilters: ListExpenseFilterDto) {
+        if (isLoading) return
+
         filters = newFilters.copy(page = 1)
         endReached = false
+        isLoading = true
+        expenses = emptyList()
 
         fetchExpenses()
     }
 
     fun fetchExpenses() {
+        if (isFetchingExpenses) return
+
+        isFetchingExpenses = true
         viewModelScope.launch {
             try {
-                ExpenseService.getAllExpenses(filters) {success, data ->
-                    if(success) {
-                        expenses = data!!.data
+                ExpenseService.getAllExpenses(filters) { success, data ->
+                    if (success && data != null) {
+                        expenses = data.data
                         total = data.sum
+                        if (data.data.size < filters.pageSize) {
+                            endReached = true
+                        }
                     }
+                    isLoading = false
+                    isFetchingExpenses = false
+                    isInitialLoadDone = true
                 }
             } catch (e: Exception) {
-            } finally {
                 isLoading = false
+                isFetchingExpenses = false
+                isInitialLoadDone = true
             }
         }
     }
 
     fun fetchMoreExpenses() {
+        if (isFetchingMore || endReached || isFetchingExpenses) return
+
+        isFetchingMore = true
         filters = filters.copy(page = filters.page + 1)
 
         viewModelScope.launch {
             try {
-                ExpenseService.getAllExpenses(filters) {success, data ->
-                    if(success) {
-                        expenses = expenses + data!!.data
+                ExpenseService.getAllExpenses(filters) { success, data ->
+                    if (success && data != null) {
+                        expenses = expenses + data.data
                         total = data.sum
-                        if (expenses.size == data.summary.total) endReached = true
+
+                        if (data.data.size < filters.pageSize) {
+                            endReached = true
+                        }
                     }
+                    isFetchingMore = false
                 }
             } catch (e: Exception) {
-            } finally {
                 isFetchingMore = false
             }
         }
     }
 
     fun fetchExpensesByCategory() {
+        if (isFetchingCategories) return
+
+        isFetchingCategories = true
         viewModelScope.launch {
-            isLoading = true
             try {
-                ExpenseService.getAllExpensesByCategory(filters) {success, data ->
-                    if(success) {
-                        expensesByCategory = data!!.data
+                ExpenseService.getAllExpensesByCategory(filters) { success, data ->
+                    if (success && data != null) {
+                        expensesByCategory = data.data
                     }
+                    isFetchingCategories = false
                 }
             } catch (e: Exception) {
-            } finally {
-                isLoading = false
+                isFetchingCategories = false
             }
         }
+    }
+
+    fun refreshData() {
+        if (isLoading || isFetchingExpenses) return
+
+        isLoading = true
+        endReached = false
+        fetchExpenses()
+        fetchExpensesByCategory()
     }
 }
