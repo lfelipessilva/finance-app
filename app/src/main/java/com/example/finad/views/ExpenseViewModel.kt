@@ -29,7 +29,7 @@ class ExpenseViewModel() : ViewModel() {
     var endReached by mutableStateOf<Boolean>(false)
         private set
 
-    var isLoading by mutableStateOf<Boolean>(false)
+    var isLoading by mutableStateOf<Boolean>(true)
         private set
 
     var isFetchingMore by mutableStateOf<Boolean>(false)
