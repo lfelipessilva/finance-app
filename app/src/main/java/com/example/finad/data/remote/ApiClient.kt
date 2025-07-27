@@ -12,7 +12,7 @@ import org.json.JSONObject
 
 object ApiClient {
 
-    private const val BASE_URL = "https://xenacious-tern-luis-finance-e5c5636e.koyeb.app/api/v1"
+    private const val BASE_URL = com.example.finad.BuildConfig.BACKEND_URL
 
     private lateinit var sessionManager: SessionManager
 

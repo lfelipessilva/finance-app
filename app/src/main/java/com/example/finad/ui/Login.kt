@@ -59,8 +59,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             val credentialManager = CredentialManager.create(context)
             val googleSignInOption =
                     GetSignInWithGoogleOption.Builder(
-                                    serverClientId =
-                                            "171555207555-h31vid2c93o352621f4ckq9latme5vpq.apps.googleusercontent.com"
+                                    serverClientId = com.example.finad.BuildConfig.GOOGLE_CLIENT_ID
                             )
                             .setNonce(getNonce())
                             .build()
