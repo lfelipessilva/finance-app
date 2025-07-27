@@ -1,74 +1,184 @@
-# Finance App
+# 💰 Finad - Your Smart Personal Finance Companion
 
-A personal finance management Android application built with Jetpack Compose.
+> **Transform your financial life with the most intuitive expense tracking app built for modern Android**
 
-## Setup
+[![Android](https://img.shields.io/badge/Android-API%2031+-green.svg)](https://developer.android.com/about/versions/android-13)
+[![Compose](https://img.shields.io/badge/Jetpack%20Compose-1.5.14-blue.svg)](https://developer.android.com/jetpack/compose)
+[![Material 3](https://img.shields.io/badge/Material%203-Latest-orange.svg)](https://m3.material.io/)
+
+## 🚀 Why Choose Finad?
+
+**Finad** is not just another expense tracker – it's your personal financial intelligence platform. Built with cutting-edge Android technologies and designed with your financial success in mind.
+
+### ✨ What Makes Finad Special
+
+- **🎯 Smart Categorization** - Automatically categorize expenses with intelligent AI-powered suggestions
+- **📊 Visual Analytics** - Beautiful stacked bar charts and category breakdowns to understand your spending patterns
+- **🔐 Secure Google Sign-In** - One-tap authentication with enterprise-grade security
+- **☁️ Cloud Sync** - Your data is always safe and accessible across devices
+- **🎨 Modern Material 3 Design** - Stunning, intuitive interface that adapts to your device
+- **⚡ Lightning Fast** - Built with Jetpack Compose for buttery-smooth performance
+
+## 📱 Features That Matter
+
+### 🎯 **Intelligent Expense Tracking**
+
+- Add expenses with just a few taps
+- Automatic category detection
+- Smart date and amount recognition
+- Photo receipt capture (coming soon)
+
+### 📈 **Powerful Analytics**
+
+- Real-time spending insights
+- Category-based expense breakdowns
+- Monthly and yearly trend analysis
+- Custom date range filtering
+
+### 🔒 **Bank-Level Security**
+
+- Google OAuth 2.0 authentication
+- Encrypted local storage with Room database
+- Secure API communication
+- Privacy-first design
+
+### 🎨 **Beautiful User Experience**
+
+- Material 3 design language
+- Dark/light theme support
+- Smooth animations and transitions
+- Intuitive navigation
+
+## 🛠 Built with Modern Android Technologies
+
+- **Jetpack Compose** - Next-generation UI toolkit
+- **Material 3** - Latest design system
+- **Room Database** - Robust local data storage
+- **Retrofit** - Type-safe HTTP client
+- **ViewModel** - Reactive state management
+- **Navigation Compose** - Seamless navigation
+
+## 📸 Screenshots
+
+_[Screenshots would be added here showing the app's beautiful interface]_
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Android Studio
-- Android SDK (API level 31+)
-- Google Cloud Console project with OAuth 2.0 credentials
+- Android Studio Arctic Fox or later
+- Android SDK API level 31+
+- Google Cloud Console project
 
-### Configuration
+### Quick Setup
 
-This project uses sensitive configuration values that should be stored securely. Follow these steps to set up your environment:
+1. **Clone the repository**
 
-1. **Copy the template file:**
+   ```bash
+   git clone https://github.com/lfelipessilva/finad.git
+   cd finad
+   ```
+
+2. **Configure your environment**
 
    ```bash
    cp local.properties.template local.properties
    ```
 
-2. **Edit `local.properties` and add your actual values:**
+3. **Add your credentials to `local.properties`**
 
    ```properties
-   # Google OAuth Client ID for Google Sign-In
-   GOOGLE_CLIENT_ID=your_actual_google_client_id_here
-
-   # Backend API URL
-   BACKEND_URL=your_actual_backend_url_here
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   BACKEND_URL=your_backend_url_here
    ```
 
-3. **Get your Google Client ID:**
+4. **Build and run**
+   ```bash
+   ./gradlew build
+   ```
 
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create or select your project
-   - Enable the Google Sign-In API
-   - Go to Credentials → Create Credentials → OAuth 2.0 Client IDs
-   - Create a new OAuth 2.0 client ID for Android
-   - Use the generated client ID in your `local.properties`
+### Google Cloud Setup
 
-4. **Set your Backend URL:**
-   - Replace `your_actual_backend_url_here` with your actual backend API URL
-   - The URL should point to your backend API endpoint
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable Google Sign-In API
+4. Create OAuth 2.0 credentials for Android
+5. Add your client ID to `local.properties`
 
-### Security Notes
+## 🏗 Architecture
 
-- The `local.properties` file is automatically excluded from version control via `.gitignore`
-- Never commit your actual `local.properties` file to version control
-- The `local.properties.template` file shows the required structure without sensitive data
-- Configuration values are automatically injected into the app via BuildConfig
+Finad follows clean architecture principles with a modern Android stack:
 
-### Building the App
+```
+📱 UI Layer (Compose)
+├── 🎨 Material 3 Components
+├── 📊 Custom Charts & Visualizations
+└── 🧭 Navigation & State Management
 
-After setting up your `local.properties`:
+📊 Business Logic Layer
+├── 🏪 ViewModels
+├── 🔄 Use Cases
+└── 🎯 State Management
 
-```bash
-./gradlew build
+💾 Data Layer
+├── 🗄️ Room Database (Local)
+├── 🌐 Retrofit (Remote)
+└── 🔐 Secure Storage
 ```
 
-## Features
+## 🔧 Development
 
-- Google Sign-In authentication
-- Expense tracking and management
-- Category-based expense organization
-- Data synchronization with backend
-- Modern Material 3 UI with Jetpack Compose
+### Building for Development
 
-## Architecture
+```bash
+# Debug build
+./gradlew assembleDebug
 
-- **UI Layer**: Jetpack Compose with Material 3
-- **Data Layer**: Room database for local storage, Retrofit for API calls
-- **Authentication**: Google Sign-In with custom backend integration
-- **State Management**: ViewModel with Compose state
+# Release build
+./gradlew assembleRelease
+
+# Run tests
+./gradlew test
+```
+
+### Key Dependencies
+
+- **UI**: Jetpack Compose, Material 3
+- **Data**: Room, Retrofit, OkHttp
+- **Auth**: Google Sign-In, Credentials API
+- **Images**: Coil for image loading
+- **JSON**: Moshi for serialization
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Google for the amazing Android platform
+- JetBrains for the excellent Kotlin language
+- The Android developer community for inspiration
+
+## 📞 Support
+
+- 📧 Email: support@finad.app
+- 🐛 Issues: [GitHub Issues](https://github.com/lfelipessilva/finad/issues)
+- 📖 Documentation: [Wiki](https://github.com/lfelipessilva/finad/wiki)
+
+---
+
+**Made with ❤️ for Android developers and financial enthusiasts**
+
+_Transform your financial future with Finad - where smart technology meets personal finance._
