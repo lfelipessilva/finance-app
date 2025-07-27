@@ -8,32 +8,45 @@ import com.example.finad.data.remote.entity.Category
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.data.remote.entity.Tag
 import com.squareup.moshi.Moshi
-import org.json.JSONObject
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import org.json.JSONObject
 
 object ExpenseService {
 
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+
     fun createExpense(expense: CreateExpenseDto, callback: (Boolean) -> Unit) {
-        val json = toJson(expense)
-        ApiClient.post("/expenses", json) { success, _ ->
-            callback(success)
+        try {
+            val adapter = moshi.adapter(CreateExpenseDto::class.java)
+            val json = adapter.toJson(expense)
+            val body = JSONObject(json)
+
+            ApiClient.post("/expenses", body) { success, _ -> callback(success) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            callback(false)
         }
     }
 
     fun updateExpense(id: String, expense: CreateExpenseDto, callback: (Boolean) -> Unit) {
-        val json = toJson(expense)
-        ApiClient.put("/expenses/$id", json) { success, _ ->
-            callback(success)
+        try {
+            val adapter = moshi.adapter(CreateExpenseDto::class.java)
+            val json = adapter.toJson(expense)
+            val body = JSONObject(json)
+
+            ApiClient.put("/expenses/$id", body) { success, _ -> callback(success) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            callback(false)
         }
     }
 
     fun deleteExpense(id: String, callback: (Boolean) -> Unit) {
-        ApiClient.delete("/expenses/$id") { success, _ ->
-            callback(success)
-        }
+        ApiClient.delete("/expenses/$id") { success, _ -> callback(success) }
     }
 
     fun getExpenseById(id: String, callback: (Boolean, Expense?) -> Unit) {
@@ -52,13 +65,12 @@ object ExpenseService {
         filters: ListExpenseFilterDto,
         callback: (Boolean, ListExpenseResponseDto?) -> Unit
     ) {
-        val queryParams = buildQueryParams(filters, listOf("order_by=timestamp", "order_direction=desc"))
+        val queryParams =
+            buildQueryParams(filters, listOf("order_by=timestamp", "order_direction=desc"))
         ApiClient.get("/expenses?$queryParams") { success, response ->
             if (success && response != null) {
                 try {
-                    val moshi = Moshi.Builder().build()
                     val adapter = moshi.adapter(ListExpenseResponseDto::class.java)
-
                     val body = adapter.fromJson(response)
                     callback(true, body)
                 } catch (e: Exception) {
@@ -75,13 +87,12 @@ object ExpenseService {
         filters: ListExpenseFilterDto?,
         callback: (Boolean, ListExpenseByCategoryResponseDto?) -> Unit
     ) {
-        val queryParams = buildQueryParams(filters, listOf("order_by=total_value", "order_direction=desc"))
+        val queryParams =
+            buildQueryParams(filters, listOf("order_by=total_value", "order_direction=desc"))
         ApiClient.get("/expenses/category?$queryParams") { success, response ->
             if (success && response != null) {
                 try {
-                    val moshi = Moshi.Builder().build()
                     val adapter = moshi.adapter(ListExpenseByCategoryResponseDto::class.java)
-
                     val body = adapter.fromJson(response)
                     callback(true, body)
                 } catch (e: Exception) {
@@ -94,7 +105,10 @@ object ExpenseService {
         }
     }
 
-    private fun buildQueryParams(filters: ListExpenseFilterDto?, start_filters: List<String>): String {
+    private fun buildQueryParams(
+        filters: ListExpenseFilterDto?,
+        start_filters: List<String>
+    ): String {
         val params = start_filters.toMutableList()
 
         filters?.page.let { params.add("page=$it") }
@@ -110,7 +124,9 @@ object ExpenseService {
                 }"
             )
         }
-        filters?.timestampEnd?.let { params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}") }
+        filters?.timestampEnd?.let {
+            params.add("timestamp_end=${convertMillisToIso8601WithTime(it)}")
+        }
 
         return params.joinToString("&")
     }
@@ -128,22 +144,24 @@ object ExpenseService {
             put("card", expense.card)
             put("bank", expense.bank)
             put("timestamp", expense.timestamp)
+            expense.categoryId?.let { put("category_id", it) }
         }
     }
 
     private fun fromJson(json: JSONObject): Expense {
         val categoryJson = json.optJSONObject("category")
-        val category = if (categoryJson != null) {
-            Category(
-                id = categoryJson.optInt("id"),
-                name = categoryJson.optString("name"),
-                color = categoryJson.optString("color"),
-                icon = categoryJson.optString("icon"),
-                url = categoryJson.optString("icon")
-            )
-        } else {
-            null
-        }
+        val category =
+            if (categoryJson != null) {
+                Category(
+                    id = categoryJson.optInt("id"),
+                    name = categoryJson.optString("name"),
+                    color = categoryJson.optString("color"),
+                    icon = categoryJson.optString("icon"),
+                    url = categoryJson.optString("icon")
+                )
+            } else {
+                null
+            }
 
         val tagsJsonArray = json.optJSONArray("tags")
         val tags = mutableListOf<Tag>()

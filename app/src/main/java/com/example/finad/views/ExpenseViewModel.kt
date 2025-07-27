@@ -6,12 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.finad.data.remote.ExpenseService
 import com.example.finad.data.remote.CategoryService
+import com.example.finad.data.remote.ExpenseService
+import com.example.finad.data.remote.dto.CreateExpenseDto
 import com.example.finad.data.remote.dto.ListExpenseFilterDto
+import com.example.finad.data.remote.entity.Category
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.data.remote.entity.ExpenseByCategory
-import com.example.finad.data.remote.entity.Category
 import kotlinx.coroutines.launch
 
 class ExpenseViewModel() : ViewModel() {
@@ -143,6 +144,42 @@ class ExpenseViewModel() : ViewModel() {
         }
     }
 
+    fun updateExpense(expense: Expense, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val updateDto =
+                    CreateExpenseDto(
+                        name = expense.name,
+                        value = expense.value,
+                        card = expense.card,
+                        bank = expense.bank,
+                        categoryId = expense.categoryId,
+                        timestamp = expense.timestamp
+                    )
+
+                ExpenseService.updateExpense(expense.id.toString(), updateDto) { success ->
+                    if (success) {
+                        expenses =
+                            expenses.map { old ->
+                                if (old.id == expense.id) {
+                                    expense
+                                } else {
+                                    old
+                                }
+                            }
+                        fetchExpensesByCategory()
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback(false)
+            }
+        }
+    }
+
     fun refreshData() {
         if (isLoading || isFetchingExpenses) return
 
@@ -150,5 +187,6 @@ class ExpenseViewModel() : ViewModel() {
         endReached = false
         fetchExpenses()
         fetchExpensesByCategory()
+        fetchAllCategories()
     }
 }
