@@ -12,8 +12,8 @@ import org.json.JSONObject
 
 object ApiClient {
 
-//        private const val BASE_URL = "https://xenacious-tern-luis-finance-e5c5636e.koyeb.app/api/v1"
-    private const val BASE_URL = "http://192.168.0.11:8080/api/v1"
+    private const val BASE_URL = "https://xenacious-tern-luis-finance-e5c5636e.koyeb.app/api/v1"
+
     private lateinit var sessionManager: SessionManager
 
     fun initialize(context: Context) {

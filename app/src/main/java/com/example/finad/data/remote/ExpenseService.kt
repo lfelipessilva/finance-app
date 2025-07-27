@@ -65,21 +65,26 @@ object ExpenseService {
         filters: ListExpenseFilterDto,
         callback: (Boolean, ListExpenseResponseDto?) -> Unit
     ) {
-        val queryParams =
-            buildQueryParams(filters, listOf("order_by=timestamp", "order_direction=desc"))
-        ApiClient.get("/expenses?$queryParams") { success, response ->
-            if (success && response != null) {
-                try {
-                    val adapter = moshi.adapter(ListExpenseResponseDto::class.java)
-                    val body = adapter.fromJson(response)
-                    callback(true, body)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+        try {
+            val queryParams =
+                buildQueryParams(filters, listOf("order_by=timestamp", "order_direction=desc"))
+            ApiClient.get("/expenses?$queryParams") { success, response ->
+                if (success && response != null) {
+                    try {
+                        val adapter = moshi.adapter(ListExpenseResponseDto::class.java)
+                        val body = adapter.fromJson(response)
+                        callback(true, body)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        callback(false, null)
+                    }
+                } else {
                     callback(false, null)
                 }
-            } else {
-                callback(false, null)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            callback(false, null)
         }
     }
 

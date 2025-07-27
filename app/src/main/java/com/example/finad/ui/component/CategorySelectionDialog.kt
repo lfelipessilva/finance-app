@@ -19,56 +19,61 @@ import com.example.finad.ui.safeColor
 
 @Composable
 fun CategorySelectionDialog(
-    categories: List<Category>,
-    onCategorySelected: (Category) -> Unit,
-    onDismiss: () -> Unit
+        categories: List<Category>,
+        onCategorySelected: (Category) -> Unit,
+        onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = MaterialTheme.shapes.medium
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                shape = MaterialTheme.shapes.large,
+                colors =
+                        CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                        )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Select Category",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                        text = "Selecione",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
+                LazyColumn(modifier = Modifier.heightIn(max = 500.dp)) {
                     items(categories) { category ->
                         Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        onCategorySelected(category)
-                                        onDismiss()
-                                    }
-                                    .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .clickable {
+                                                    onCategorySelected(category)
+                                                    onDismiss()
+                                                }
+                                                .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
-                                modifier =
-                                    Modifier
-                                        .clip(CircleShape)
-                                        .size(40.dp)
-                                        .background(safeColor(category.color)),
-                                contentAlignment = Alignment.Center
+                                    modifier =
+                                            Modifier.clip(CircleShape)
+                                                    .size(40.dp)
+                                                    .background(safeColor(category.color)),
+                                    contentAlignment = Alignment.Center
                             ) {
                                 SvgIcon(
-                                    iconUrl = category.url,
-                                    label = category.name,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(24.dp)
+                                        iconUrl = category.url,
+                                        label = category.name,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(24.dp)
                                 )
                             }
 
                             Spacer(modifier = Modifier.width(12.dp))
 
-                            Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                    text = category.name,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
