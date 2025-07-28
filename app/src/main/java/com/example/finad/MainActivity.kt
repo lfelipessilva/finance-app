@@ -8,10 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
@@ -34,41 +33,38 @@ class MainActivity : ComponentActivity() {
 
         ApiClient.initialize(this)
 
-        setContent {
-            FinadTheme {
-                val context = LocalContext.current
-                var isLoggedIn by remember {
-                    mutableStateOf(SessionManager.getInstance(context).isLoggedIn())
-                }
-                val navController = rememberNavController()
-                val expenseViewModel = ExpenseViewModel()
+        setContent { FinadTheme { MainContent() } }
+    }
+}
 
-                if (!isLoggedIn) {
-                    LoginScreen(onLoginSuccess = { isLoggedIn = true })
-                } else {
-                    val bottomNavItems =
-                            listOf(
-                                    BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
-                                    BottomNavItem("Sent", "sent", Icons.Default.Notifications)
-                            )
+@Composable
+fun MainContent() {
+    val context = LocalContext.current
+    val sessionManager = SessionManager.getInstance(context)
+    val isLoggedIn by sessionManager.isLoggedInFlow.collectAsState()
+    val navController = rememberNavController()
+    val expenseViewModel = ExpenseViewModel()
 
-                    Scaffold(bottomBar = { BottomBar(navController, bottomNavItems) }) {
-                            innerPadding ->
-                        NavHost(
-                                navController = navController,
-                                startDestination = "expense/list",
-                                modifier = Modifier.padding(innerPadding)
-                        ) {
-                            composable("expense/list") {
-                                ExpenseListScreen(navController, expenseViewModel)
-                            }
-                            composable("expense/filter") {
-                                ExpenseFilterScreen(navController, expenseViewModel)
-                            }
-                            composable("sent") { SentToServerScreen() }
-                        }
-                    }
+    if (!isLoggedIn) {
+        LoginScreen(onLoginSuccess = {})
+    } else {
+        val bottomNavItems =
+                listOf(
+                        BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
+                        BottomNavItem("Sent", "sent", Icons.Default.Notifications)
+                )
+
+        Scaffold(bottomBar = { BottomBar(navController, bottomNavItems) }) { innerPadding ->
+            NavHost(
+                    navController = navController,
+                    startDestination = "expense/list",
+                    modifier = Modifier.padding(innerPadding)
+            ) {
+                composable("expense/list") { ExpenseListScreen(navController, expenseViewModel) }
+                composable("expense/filter") {
+                    ExpenseFilterScreen(navController, expenseViewModel)
                 }
+                composable("sent") { SentToServerScreen() }
             }
         }
     }

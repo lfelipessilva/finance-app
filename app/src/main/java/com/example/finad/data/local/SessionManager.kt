@@ -4,12 +4,19 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.finad.data.remote.entity.User
 import com.squareup.moshi.Moshi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class SessionManager private constructor(context: Context) {
     private val sharedPreferences: SharedPreferences =
             context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     private val moshi = Moshi.Builder().build()
     private val userAdapter = moshi.adapter(User::class.java)
+
+    private val _isLoggedIn =
+            MutableStateFlow(sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false))
+    val isLoggedInFlow: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
     companion object {
         @Volatile private var INSTANCE: SessionManager? = null
@@ -34,6 +41,8 @@ class SessionManager private constructor(context: Context) {
         editor.putString(KEY_USER, userAdapter.toJson(user))
         editor.putBoolean(KEY_IS_LOGGED_IN, true)
         editor.apply()
+
+        _isLoggedIn.value = true
     }
 
     fun getAccessToken(): String? {
@@ -61,5 +70,7 @@ class SessionManager private constructor(context: Context) {
         editor.remove(KEY_USER)
         editor.putBoolean(KEY_IS_LOGGED_IN, false)
         editor.apply()
+
+        _isLoggedIn.value = false
     }
 }

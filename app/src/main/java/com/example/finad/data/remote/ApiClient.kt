@@ -33,7 +33,6 @@ object ApiClient {
                 .build()
     }
 
-    /** Interceptor to add token automatically */
     private class AuthInterceptor : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
@@ -43,7 +42,13 @@ object ApiClient {
                         request.newBuilder().addHeader("Authorization", "Bearer $token").build()
                     } else request
 
-            return chain.proceed(newRequest)
+            val response = chain.proceed(newRequest)
+
+            if (response.code == 401) {
+                sessionManager.clearSession()
+            }
+
+            return response
         }
     }
 
