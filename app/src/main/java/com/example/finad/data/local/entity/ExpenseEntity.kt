@@ -11,5 +11,6 @@ data class Expense(
     @ColumnInfo(name = "value") val value: Int,
     @ColumnInfo(name = "card") val card: String,
     @ColumnInfo(name = "bank") val bank: String,
-    @ColumnInfo(name = "timestamp") val timestamp: String
+    @ColumnInfo(name = "timestamp") val timestamp: String,
+    @ColumnInfo(name = "success") val success: Boolean
 )

@@ -9,7 +9,7 @@ import com.example.finad.data.local.dao.NotificationDao
 import com.example.finad.data.local.entity.Expense
 import com.example.finad.data.local.entity.Notification
 
-@Database(entities = [Notification::class, Expense::class], version = 1)
+@Database(entities = [Notification::class, Expense::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
     abstract fun expenseDao(): ExpenseDao
@@ -18,16 +18,15 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile private var instance: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            return instance ?: synchronized(this) {
-                instance ?: createDatabase(context).also { instance = it }
-            }
+            return instance
+                    ?: synchronized(this) {
+                        instance ?: createDatabase(context).also { instance = it }
+                    }
         }
 
         private fun createDatabase(context: Context) =
-            Room.databaseBuilder(
-                context.applicationContext,
-                AppDatabase::class.java,
-                "db"
-            ).fallbackToDestructiveMigration().build()
+                Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "db")
+                        .fallbackToDestructiveMigration()
+                        .build()
     }
 }

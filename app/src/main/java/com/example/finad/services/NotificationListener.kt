@@ -1,48 +1,37 @@
-package com.example.finad
+package com.example.finad.services
 
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import com.example.finad.data.AppDatabase
-import com.example.finad.data.remote.ExpenseService
-import com.example.finad.data.remote.dto.CreateExpenseDto
 import com.example.finad.data.remote.entity.BankNotification
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 class NotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
+        Log.d("NotificationListener", "Notification listener connected")
 
         val notifications = getActiveNotifications()
-        notifications.forEach {
+        Log.d("NotificationListener", "Found ${notifications.size} active notifications")
 
-            val notification = it.notification.extras
+        notifications.forEach { sbn ->
+            val notification = sbn.notification.extras
             val title = notification.getString("android.title") ?: ""
             val text = notification.getString("android.text") ?: ""
 
+            Log.d("NotificationListener", "Processing notification: title='$title', text='$text'")
 
             if (title.contains("Compra no crédito")) {
-                val bankNotification = BankNotification(
-                    text = text,
-                    bank = if (text.contains("com o cartão final")) "Inter" else "Nubank"
-                )
+                Log.d("NotificationListener", "Found credit purchase notification")
+                val bankNotification =
+                        BankNotification(
+                                text = text,
+                                context = applicationContext,
+                                bank =
+                                        if (text.contains("com o cartão final")) "Inter"
+                                        else "Nubank"
+                        )
 
-                val expense = CreateExpenseDto(
-                    name = bankNotification.extractName(),
-                    value = bankNotification.extractValue(),
-                    bank = bankNotification.bank,
-                    card = bankNotification.extractCard(),
-                    timestamp = getCurrentTimestamp(),
-                    categoryId = 1
-                )
-
-                Log.d("ActiveNotification", expense.toString())
+                bankNotification.sendToServer()
             }
         }
     }
@@ -55,69 +44,26 @@ class NotificationListener : NotificationListenerService() {
             val title = notification.getString("android.title") ?: ""
             val text = notification.getString("android.text") ?: ""
 
+            Log.d("NotificationListener", "New notification posted: title='$title', text='$text'")
+
             if (title.contains("Compra no crédito")) {
-                val bankNotification = BankNotification(
-                    text = text,
-                    bank = if (text.contains("com o cartão final")) "Inter" else "Nubank"
-                )
+                Log.d("NotificationListener", "Found credit purchase notification")
+                val bankNotification =
+                        BankNotification(
+                                text = text,
+                                context = applicationContext,
+                                bank =
+                                        if (text.contains("com o cartão final")) "Inter"
+                                        else "Nubank"
+                        )
 
-                val expense = CreateExpenseDto(
-                    name = bankNotification.extractName(),
-                    value = bankNotification.extractValue(),
-                    bank = bankNotification.bank,
-                    card = bankNotification.extractCard(),
-                    timestamp = getCurrentTimestamp(),
-                    categoryId = 1
-                )
-
-                saveExpense(
-                    name = expense.name,
-                    value = expense.value,
-                    bank = expense.bank,
-                    card = expense.card,
-                    timestamp = expense.timestamp,
-                )
-
-                ExpenseService.createExpense(expense) { success ->
-                    if (success) {
-                        Log.d("NotificationListener", "Notification with data sent successfully!")
-                    } else {
-                        Log.e("NotificationListener", "Failed to send notification with data.")
-                    }
-                }
+                bankNotification.sendToServer()
             }
-        }
-    }
-
-    private fun saveExpense(
-        name: String,
-        value: Int,
-        bank: String,
-        card: String,
-        timestamp: String
-    ) {
-        val db = AppDatabase.getDatabase(applicationContext)
-        val expense = com.example.finad.data.local.entity.Expense (
-            name = name,
-            value = value,
-            bank = bank,
-            card = card,
-            timestamp = timestamp
-        )
-
-        CoroutineScope(Dispatchers.IO).launch {
-            db.expenseDao().insertExpense(expense)
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
-    }
-
-    private fun getCurrentTimestamp(): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone("UTC")
-        return sdf.format(Date())
+        Log.d("NotificationListener", "Notification removed")
     }
 }
-

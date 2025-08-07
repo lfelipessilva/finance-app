@@ -76,6 +76,8 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
+    // Coroutines
+    implementation(libs.coroutines.android)
     // Google sign-in and credentials
     implementation(libs.play.services.auth)
     implementation(libs.androidx.datastore.preferences)
