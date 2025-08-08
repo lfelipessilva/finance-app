@@ -15,16 +15,13 @@ class NotificationListener : NotificationListenerService() {
         super.onNotificationPosted(sbn)
 
         sbn?.let {
-            // val notification = it.notification.extras
-            // val title = notification.getString("android.title") ?: ""
-            // val text = notification.getString("android.text") ?: ""
-
-            val title = "Compra no crédito aprovada"
-            val text = "Compra de R$ 25,34 APROVADA em AMAZON BR para o cartão com final 3576."
+            val notification = it.notification.extras
+            val title = notification.getString("android.title") ?: ""
+            val text = notification.getString("android.text") ?: ""
 
             Log.d("NotificationListener", "New notification posted: title='$title', text='$text'")
 
-             if (title.contains("Compra no crédito")) {
+            if (title.contains("Compra no crédito")) {
                 Log.d("NotificationListener", "Found credit purchase notification")
                 val bankNotification =
                         BankNotification(
