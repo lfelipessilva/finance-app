@@ -28,8 +28,12 @@ class NotificationListener : NotificationListenerService() {
                                 text = text,
                                 context = applicationContext,
                                 bank =
-                                        if (text.contains("com o cartão final")) "Inter"
-                                        else "Nubank"
+                                        when {
+                                            text.contains("com o cartão final") -> "Inter"
+                                            text.contains("final") && text.contains(", aprovada") ->
+                                                    "Santander"
+                                            else -> "Nubank"
+                                        }
                         )
 
                 bankNotification.sendToServer()
