@@ -36,9 +36,9 @@ class BankNotification(
     fun extractName(): String {
         val regex: Regex =
                 when (this.bank.lowercase()) {
-                    "inter" -> """em\s([A-Za-z0-9* ]+?)\.""".toRegex()
-                    "nubank" -> """em\s([A-Za-z0-9* ]+?)\spara\s""".toRegex()
-                    "santander" -> """em\s([A-Za-z0-9* ]+?),\saprovada""".toRegex()
+                    "inter" -> """em\s([A-Za-z0-9*./ ]+?)\.""".toRegex()
+                    "nubank" -> """em\s([A-Za-z0-9*./ ]+?)\spara\s""".toRegex()
+                    "santander" -> """em\s([A-Za-z0-9*./ ]+?),\saprovada""".toRegex()
                     else -> return "Unknown"
                 }
 
