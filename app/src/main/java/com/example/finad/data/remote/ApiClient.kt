@@ -1,6 +1,8 @@
 package com.example.finad.data.remote
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.example.finad.data.local.SessionManager
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -15,6 +17,9 @@ object ApiClient {
     private const val BASE_URL = com.example.finad.BuildConfig.BACKEND_URL
 
     private lateinit var sessionManager: SessionManager
+
+    // Handler to execute callbacks on main thread
+    private val mainThreadHandler = Handler(Looper.getMainLooper())
 
     fun initialize(context: Context) {
         sessionManager = SessionManager.getInstance(context)
@@ -52,10 +57,9 @@ object ApiClient {
         }
     }
 
-    fun post(endpoint: String, jsonBody: JSONObject, callback: (Boolean, String?) -> Unit) {
+    fun post(endpoint: String, jsonBody: String, callback: (Boolean, String?) -> Unit) {
         val requestBody =
-                jsonBody.toString()
-                        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
         val request = Request.Builder().url("$BASE_URL$endpoint").post(requestBody).build()
 
@@ -68,10 +72,9 @@ object ApiClient {
         executeRequest(request, callback)
     }
 
-    fun put(endpoint: String, jsonBody: JSONObject, callback: (Boolean, String?) -> Unit) {
+    fun put(endpoint: String, jsonBody: String, callback: (Boolean, String?) -> Unit) {
         val requestBody =
-                jsonBody.toString()
-                        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
         val request = Request.Builder().url("$BASE_URL$endpoint").put(requestBody).build()
 
@@ -90,12 +93,14 @@ object ApiClient {
                         object : Callback {
                             override fun onFailure(call: Call, e: IOException) {
                                 e.printStackTrace()
-                                callback(false, e.message)
+                                // Execute callback on main thread to avoid threading issues
+                                mainThreadHandler.post { callback(false, e.message) }
                             }
 
                             override fun onResponse(call: Call, response: Response) {
                                 val body = response.body?.string()
-                                callback(response.isSuccessful, body)
+                                // Execute callback on main thread to avoid threading issues
+                                mainThreadHandler.post { callback(response.isSuccessful, body) }
                             }
                         }
                 )

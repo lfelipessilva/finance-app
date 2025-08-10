@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.ui.component.CategorySelectionDialog
@@ -27,8 +26,6 @@ import com.example.finad.ui.component.ExpenseOptionsDialog
 import com.example.finad.ui.component.SvgIcon
 import com.example.finad.views.ExpenseViewModel
 import java.text.NumberFormat
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +65,7 @@ fun ExpenseListScreen(navController: NavController, expenseViewModel: ExpenseVie
             topBar = {
                 CustomTopAppBar(
                         title = "Olá, Luís",
-                        onSearch = { navController.navigate("expense/filter") },
+//                        onSearch = { navController.navigate("expense/filter") },
                         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 )
             },
@@ -83,7 +80,7 @@ fun ExpenseListScreen(navController: NavController, expenseViewModel: ExpenseVie
                             modifier = Modifier.background(MaterialTheme.colorScheme.background),
                     ) {
                         itemsIndexed(expenseViewModel.expenses) { index, expense ->
-                            ExpenseItem(expense, expenseViewModel)
+                            ExpenseItem(expense, expenseViewModel, navController)
                         }
 
                         if (!expenseViewModel.endReached && expenseViewModel.expenses.isNotEmpty()
@@ -109,7 +106,11 @@ fun ExpenseListScreen(navController: NavController, expenseViewModel: ExpenseVie
 }
 
 @Composable
-fun ExpenseItem(expense: Expense, expenseViewModel: ExpenseViewModel) {
+fun ExpenseItem(
+        expense: Expense,
+        expenseViewModel: ExpenseViewModel,
+        navController: NavController
+) {
     var showCategoryDialog by remember { mutableStateOf(false) }
     var showOptionsDialog by remember { mutableStateOf(false) }
 
@@ -127,8 +128,8 @@ fun ExpenseItem(expense: Expense, expenseViewModel: ExpenseViewModel) {
     if (showOptionsDialog) {
         ExpenseOptionsDialog(
                 onDismiss = { showOptionsDialog = false },
-                onEdit = { showCategoryDialog = false },
-                onDelete = { expenseViewModel.deleteExpense(expense.id) {} }
+                onDelete = { expenseViewModel.deleteExpense(expense.id) {} },
+                onEdit = { navController.navigate("expense/edit/${expense.id}") }
         )
     }
 
@@ -194,23 +195,5 @@ fun ExpenseItem(expense: Expense, expenseViewModel: ExpenseViewModel) {
                 )
             }
         }
-    }
-}
-
-fun formatToDate(iso: String): String =
-        ZonedDateTime.parse(iso).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-
-fun formatToCurrency(valueInCents: Int): String {
-    val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-    return currencyFormatter.format(valueInCents / 100.0)
-}
-
-fun safeColor(colorString: String?, fallback: Color = Color.Gray): Color {
-    return try {
-        if (!colorString.isNullOrBlank()) {
-            Color(colorString.toColorInt())
-        } else fallback
-    } catch (e: Exception) {
-        fallback
     }
 }

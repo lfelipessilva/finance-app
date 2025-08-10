@@ -13,13 +13,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.finad.data.local.SessionManager
 import com.example.finad.data.remote.ApiClient
 import com.example.finad.ui.BottomBar
 import com.example.finad.ui.BottomNavItem
+import com.example.finad.ui.EditExpenseScreen
 import com.example.finad.ui.ExpenseFilterScreen
 import com.example.finad.ui.ExpenseListScreen
 import com.example.finad.ui.LoginScreen
@@ -63,6 +66,15 @@ fun MainContent() {
                 composable("expense/list") { ExpenseListScreen(navController, expenseViewModel) }
                 composable("expense/filter") {
                     ExpenseFilterScreen(navController, expenseViewModel)
+                }
+                composable(
+                        route = "expense/edit/{expenseId}",
+                        arguments = listOf(navArgument("expenseId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val expenseId = backStackEntry.arguments?.getInt("expenseId")
+                    if (expenseId != null) {
+                        EditExpenseScreen(navController, expenseViewModel, expenseId)
+                    }
                 }
                 composable("sent") { SentToServerScreen() }
             }
