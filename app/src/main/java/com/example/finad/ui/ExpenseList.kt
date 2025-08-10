@@ -127,6 +127,7 @@ fun ExpenseItem(expense: Expense, expenseViewModel: ExpenseViewModel) {
     if (showOptionsDialog) {
         ExpenseOptionsDialog(
                 onDismiss = { showOptionsDialog = false },
+                onEdit = { showCategoryDialog = false },
                 onDelete = { expenseViewModel.deleteExpense(expense.id) {} }
         )
     }
