@@ -24,11 +24,14 @@ class BankNotification(
         val bank: String,
 ) {
     fun extractValue(): Int {
-        val regex = """R\$\s*([\d,.]+)""".toRegex()
+        val regex = """R\$\s*([\d.,]+)""".toRegex()
         val match = regex.find(this.text)
         val value =
-                match?.groupValues?.get(1)?.replace(",", ".")?.toDoubleOrNull()?.times(100)?.toInt()
+                match?.groupValues?.get(1)?.let { rawValue ->
+                    rawValue.replace(".", "").replace(",", "").toIntOrNull()
+                }
                         ?: 0
+
         Log.d("BankNotification", "Extracted value: $value from text: $text")
         return value
     }

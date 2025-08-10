@@ -21,8 +21,7 @@ class NotificationListener : NotificationListenerService() {
 
             Log.d("NotificationListener", "New notification posted: title='$title', text='$text'")
 
-            if (title.contains("Compra no crédito")) {
-                Log.d("NotificationListener", "Found credit purchase notification")
+            if (title.contains("Compra no crédito") || title.contains("Compra aprovada")) {
                 val bankNotification =
                         BankNotification(
                                 text = text,
@@ -30,9 +29,9 @@ class NotificationListener : NotificationListenerService() {
                                 bank =
                                         when {
                                             text.contains("com o cartão final") -> "Inter"
-                                            text.contains("final") && text.contains(", aprovada") ->
-                                                    "Santander"
-                                            else -> "Nubank"
+                                            text.contains("para o cartão com final") -> "Nubank"
+                                            text.contains("compra no cartão final") -> "Santander"
+                                            else -> "Unknown"
                                         }
                         )
 
