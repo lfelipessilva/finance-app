@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import org.json.JSONObject
 
 object ExpenseService {
 
@@ -23,9 +22,8 @@ object ExpenseService {
         try {
             val adapter = moshi.adapter(CreateExpenseDto::class.java)
             val json = adapter.toJson(expense)
-            val body = JSONObject(json)
 
-            ApiClient.post("/expenses", body) { success, _ -> callback(success) }
+            ApiClient.post("/expenses", json) { success, _ -> callback(success) }
         } catch (e: Exception) {
             e.printStackTrace()
             callback(false)
@@ -36,9 +34,8 @@ object ExpenseService {
         try {
             val adapter = moshi.adapter(CreateExpenseDto::class.java)
             val json = adapter.toJson(expense)
-            val body = JSONObject(json)
 
-            ApiClient.put("/expenses/$id", body) { success, _ -> callback(success) }
+            ApiClient.put("/expenses/$id", json) { success, _ -> callback(success) }
         } catch (e: Exception) {
             e.printStackTrace()
             callback(false)
@@ -52,9 +49,14 @@ object ExpenseService {
     fun getExpenseById(id: String, callback: (Boolean, Expense?) -> Unit) {
         ApiClient.get("/expenses/$id") { success, response ->
             if (success && response != null) {
-                val json = JSONObject(response)
-                val expense = fromJson(json)
-                callback(true, expense)
+                try {
+                    val adapter = moshi.adapter(Expense::class.java)
+                    val expense = adapter.fromJson(response)
+                    callback(true, expense)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    callback(false, null)
+                }
             } else {
                 callback(false, null)
             }
@@ -140,61 +142,5 @@ object ExpenseService {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
         formatter.timeZone = TimeZone.getTimeZone("UTC")
         return formatter.format(Date(millis))
-    }
-
-    private fun toJson(expense: CreateExpenseDto): JSONObject {
-        return JSONObject().apply {
-            put("name", expense.name)
-            put("value", expense.value)
-            put("card", expense.card)
-            put("bank", expense.bank)
-            put("timestamp", expense.timestamp)
-            expense.categoryId?.let { put("category_id", it) }
-        }
-    }
-
-    private fun fromJson(json: JSONObject): Expense {
-        val categoryJson = json.optJSONObject("category")
-        val category =
-            if (categoryJson != null) {
-                Category(
-                    id = categoryJson.optInt("id"),
-                    name = categoryJson.optString("name"),
-                    color = categoryJson.optString("color"),
-                    icon = categoryJson.optString("icon"),
-                    url = categoryJson.optString("icon")
-                )
-            } else {
-                null
-            }
-
-        val tagsJsonArray = json.optJSONArray("tags")
-        val tags = mutableListOf<Tag>()
-        if (tagsJsonArray != null) {
-            for (i in 0 until tagsJsonArray.length()) {
-                val tagJson = tagsJsonArray.optJSONObject(i)
-                if (tagJson != null) {
-                    tags.add(
-                        Tag(
-                            id = tagJson.optInt("id"),
-                            name = tagJson.optString("name"),
-                            color = tagJson.optString("color")
-                        )
-                    )
-                }
-            }
-        }
-
-        return Expense(
-            id = json.optInt("id"),
-            name = json.optString("name"),
-            value = json.optInt("value"),
-            card = json.optString("card"),
-            bank = json.optString("bank"),
-            timestamp = json.optString("timestamp"),
-            categoryId = json.optInt("category_id"),
-            category = category,
-            tags = tags
-        )
     }
 }

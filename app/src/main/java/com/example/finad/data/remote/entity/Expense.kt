@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 data class Expense(
     val id: Int,
     val name: String,
+    val description: String?,
     val value: Int,
     val bank: String,
     val card: String,

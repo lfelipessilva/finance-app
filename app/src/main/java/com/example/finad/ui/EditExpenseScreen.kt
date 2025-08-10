@@ -36,6 +36,7 @@ fun EditExpenseScreen(
         }
 
         var name by remember { mutableStateOf(expense.name) }
+        var description by remember { mutableStateOf(expense.description) }
         var value by remember { mutableStateOf(expense.value.toString()) }
         var bank by remember { mutableStateOf(expense.bank) }
         var card by remember { mutableStateOf(expense.card) }
@@ -69,6 +70,7 @@ fun EditExpenseScreen(
                                                 val updatedExpense =
                                                         expense.copy(
                                                                 name = name,
+                                                                description = description,
                                                                 value = value.toIntOrNull()
                                                                                 ?: expense.value,
                                                                 bank = bank,
@@ -118,7 +120,15 @@ fun EditExpenseScreen(
                                         value = name,
                                         onValueChange = { name = it },
                                         placeholder = "Digite o nome da despesa",
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier.fillMaxWidth()
+                                )
+
+                                FormField(
+                                        label = "Descrição",
+                                        value = description ?: "",
+                                        onValueChange = { description = it },
+                                        placeholder = "Digite a descrição",
+                                        modifier = Modifier.fillMaxWidth().height(120.dp)
                                 )
 
                                 FormField(
