@@ -67,7 +67,7 @@ class BankNotification(
                         bank = this.bank,
                         card = this.extractCard(),
                         timestamp = this.timestamp,
-                        categoryId = 1
+                        categoryId = null
                 )
 
         ExpenseService.createExpense(dto) { success ->

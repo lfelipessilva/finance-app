@@ -128,7 +128,7 @@ fun EditExpenseScreen(
                                         value = description ?: "",
                                         onValueChange = { description = it },
                                         placeholder = "Digite a descrição",
-                                        modifier = Modifier.fillMaxWidth().height(120.dp)
+                                        modifier = Modifier.fillMaxWidth()
                                 )
 
                                 FormField(
@@ -144,9 +144,8 @@ fun EditExpenseScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         trailingIcon = {
                                                 if (value.isNotBlank()) {
-                                                        val valueInCents = value.toIntOrNull() ?: 0
                                                         Text(
-                                                                "R$ ${String.format("%.2f", valueInCents / 100.0)}",
+                                                                formatToCurrency(value.toInt()),
                                                                 style =
                                                                         MaterialTheme.typography
                                                                                 .bodyMedium,
