@@ -65,7 +65,7 @@ fun ExpenseListScreen(navController: NavController, expenseViewModel: ExpenseVie
             topBar = {
                 CustomTopAppBar(
                         title = "Olá, Luís",
-                        onSearch = { navController.navigate("expense/filter") },
+//                        onSearch = { navController.navigate("expense/filter") },
                         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 )
             },

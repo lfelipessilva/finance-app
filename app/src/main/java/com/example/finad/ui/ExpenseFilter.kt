@@ -49,7 +49,7 @@ fun ExpenseFilterScreen(
             topBar = {
                 CustomTopAppBar(
                         title = "Filtros",
-                        onBack = { navController.navigate("expense/list") }
+                       onBack  = { navController.navigate("expense/list") }
                 )
             },
     ) { innerPadding ->
