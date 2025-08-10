@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.example.finad.data.remote.entity.Expense
 import com.example.finad.ui.component.CategorySelectionDialog
 import com.example.finad.ui.component.ExpenseByCategoryList
+import com.example.finad.ui.component.ExpenseOptionsDialog
 import com.example.finad.ui.component.SvgIcon
 import com.example.finad.views.ExpenseViewModel
 import java.text.NumberFormat
@@ -57,7 +58,6 @@ fun ExpenseListScreen(navController: NavController, expenseViewModel: ExpenseVie
         }
     }
 
-    // Calculate the height needed for ExpenseByCategoryList
     val categoryListHeight = 208.dp + (expenseViewModel.expensesByCategory.size * 28).dp
     val availableHeight = screenHeight - categoryListHeight
 
@@ -111,6 +111,7 @@ fun ExpenseListScreen(navController: NavController, expenseViewModel: ExpenseVie
 @Composable
 fun ExpenseItem(expense: Expense, expenseViewModel: ExpenseViewModel) {
     var showCategoryDialog by remember { mutableStateOf(false) }
+    var showOptionsDialog by remember { mutableStateOf(false) }
 
     if (showCategoryDialog) {
         CategorySelectionDialog(
@@ -123,13 +124,20 @@ fun ExpenseItem(expense: Expense, expenseViewModel: ExpenseViewModel) {
         )
     }
 
+    if (showOptionsDialog) {
+        ExpenseOptionsDialog(
+                onDismiss = { showOptionsDialog = false },
+                onDelete = { expenseViewModel.deleteExpense(expense.id) {} }
+        )
+    }
+
     Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
             shape = RectangleShape,
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable { showOptionsDialog = true },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
         ) {

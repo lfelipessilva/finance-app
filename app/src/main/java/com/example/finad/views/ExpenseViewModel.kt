@@ -148,25 +148,44 @@ class ExpenseViewModel() : ViewModel() {
         viewModelScope.launch {
             try {
                 val updateDto =
-                    CreateExpenseDto(
-                        name = expense.name,
-                        value = expense.value,
-                        card = expense.card,
-                        bank = expense.bank,
-                        categoryId = expense.categoryId,
-                        timestamp = expense.timestamp
-                    )
+                        CreateExpenseDto(
+                                name = expense.name,
+                                value = expense.value,
+                                card = expense.card,
+                                bank = expense.bank,
+                                categoryId = expense.categoryId,
+                                timestamp = expense.timestamp
+                        )
 
                 ExpenseService.updateExpense(expense.id.toString(), updateDto) { success ->
                     if (success) {
                         expenses =
-                            expenses.map { old ->
-                                if (old.id == expense.id) {
-                                    expense
-                                } else {
-                                    old
+                                expenses.map { old ->
+                                    if (old.id == expense.id) {
+                                        expense
+                                    } else {
+                                        old
+                                    }
                                 }
-                            }
+                        fetchExpensesByCategory()
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback(false)
+            }
+        }
+    }
+
+    fun deleteExpense(expenseId: Int, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                ExpenseService.deleteExpense(expenseId.toString()) { success ->
+                    if (success) {
+                        expenses = expenses.filter { it.id != expenseId }
                         fetchExpensesByCategory()
                         callback(true)
                     } else {
