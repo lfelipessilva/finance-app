@@ -14,23 +14,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BankNotification(
-        private val text: String,
-        private val context: Context,
-        var success: Boolean = false,
-        val timestamp: String =
-                Instant.now()
-                        .atOffset(ZoneOffset.UTC)
-                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")),
-        val bank: String,
+    private val text: String,
+    private val context: Context,
+    var success: Boolean = false,
+    val timestamp: String =
+        Instant.now()
+            .atOffset(ZoneOffset.UTC)
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")),
+    val bank: String,
 ) {
     fun extractValue(): Int {
         val regex = """R\$\s*([\d.,]+)""".toRegex()
         val match = regex.find(this.text)
         val value =
-                match?.groupValues?.get(1)?.let { rawValue ->
-                    rawValue.replace(".", "").replace(",", "").toIntOrNull()
-                }
-                        ?: 0
+            match?.groupValues?.get(1)?.let { rawValue ->
+                rawValue.replace(".", "").replace(",", "").toIntOrNull()
+            }
+                ?: 0
 
         Log.d("BankNotification", "Extracted value: $value from text: $text")
         return value
@@ -38,12 +38,12 @@ class BankNotification(
 
     fun extractName(): String {
         val regex: Regex =
-                when (this.bank.lowercase()) {
-                    "inter" -> """em\s([A-Za-z0-9*./ ]+?)\.""".toRegex()
-                    "nubank" -> """em\s([A-Za-z0-9*./ ]+?)\spara\s""".toRegex()
-                    "santander" -> """em\s([A-Za-z0-9*./ ]+?),\saprovada""".toRegex()
-                    else -> return "Unknown"
-                }
+            when (this.bank.lowercase()) {
+                "inter" -> """em\s([A-Za-z0-9*./ ]+?)\.""".toRegex()
+                "nubank" -> """em\s([A-Za-z0-9*./ ]+?)\spara\s""".toRegex()
+                "santander" -> """em\s([A-Za-z0-9*./ ]+?),\saprovada""".toRegex()
+                else -> return "Unknown"
+            }
 
         val match = regex.find(this.text)
         val name = match?.groupValues?.get(1)?.trim() ?: "Unknown"
@@ -61,14 +61,15 @@ class BankNotification(
     fun sendToServer() {
         Log.d("BankNotification", "Sending to server: bank=$bank, text=$text")
         val dto =
-                CreateExpenseDto(
-                        name = this.extractName(),
-                        value = this.extractValue(),
-                        bank = this.bank,
-                        card = this.extractCard(),
-                        timestamp = this.timestamp,
-                        categoryId = null
-                )
+            CreateExpenseDto(
+                name = this.extractName(),
+                value = this.extractValue(),
+                bank = this.bank,
+                card = this.extractCard(),
+                timestamp = this.timestamp,
+                categoryId = null,
+                description = null
+            )
 
         ExpenseService.createExpense(dto) { success ->
             this.success = success
@@ -82,14 +83,14 @@ class BankNotification(
             try {
                 val db = AppDatabase.getDatabase(context)
                 val expense =
-                        LocalExpense(
-                                name = this@BankNotification.extractName(),
-                                value = this@BankNotification.extractValue(),
-                                bank = this@BankNotification.bank,
-                                card = this@BankNotification.extractCard(),
-                                timestamp = this@BankNotification.timestamp,
-                                success = this@BankNotification.success
-                        )
+                    LocalExpense(
+                        name = this@BankNotification.extractName(),
+                        value = this@BankNotification.extractValue(),
+                        bank = this@BankNotification.bank,
+                        card = this@BankNotification.extractCard(),
+                        timestamp = this@BankNotification.timestamp,
+                        success = this@BankNotification.success
+                    )
 
                 db.expenseDao().insertExpense(expense)
                 Log.d("BankNotification", "Saved to database: $expense")

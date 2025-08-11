@@ -48,18 +48,17 @@ class SentToFinadViewModel : ViewModel() {
     fun retryExpense(expense: Expense, context: Context) {
         isRetrying = true
 
-        // Create DTO from local expense
         val createExpenseDto =
                 CreateExpenseDto(
                         name = expense.name,
                         value = expense.value,
                         bank = expense.bank,
                         card = expense.card,
-                        categoryId = null, // We don't have category info in local storage
-                        timestamp = expense.timestamp
+                        categoryId = null,
+                        description = null,
+                        timestamp = expense.timestamp,
                 )
 
-        // Make API call
         ExpenseService.createExpense(createExpenseDto) { success ->
             viewModelScope.launch {
                 val db = AppDatabase.getDatabase(context)

@@ -150,6 +150,7 @@ class ExpenseViewModel() : ViewModel() {
                 val updateDto =
                         CreateExpenseDto(
                                 name = expense.name,
+                                description = expense.description,
                                 value = expense.value,
                                 card = expense.card,
                                 bank = expense.bank,
