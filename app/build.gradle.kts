@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.finad"
+    namespace = "com.orbita.finad"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.finad"
+        applicationId = "com.orbita.finad"
         minSdk = 31
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
