@@ -3,8 +3,12 @@ package com.orbita.finad
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Scaffold
@@ -54,9 +58,21 @@ fun MainContent() {
     } else {
         val bottomNavItems =
                 listOf(
-                        BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
-                        BottomNavItem("Criar", "expense/create", Icons.Default.Done),
-                        BottomNavItem("Sent", "sent", Icons.Default.Notifications)
+                        BottomNavItem(
+                                label = "Despesas",
+                                page = "expense/list",
+                                icon = Icons.Default.Done
+                        ),
+                        BottomNavItem(
+                                label = "Criar",
+                                page = "expense/create",
+                                icon = Icons.Default.Create
+                        ),
+                        BottomNavItem(
+                                label = "Notificações",
+                                page = "sent",
+                                icon = Icons.Default.Notifications
+                        )
                 )
 
         Scaffold(bottomBar = { BottomBar(navController, bottomNavItems) }) { innerPadding ->
@@ -66,23 +82,47 @@ fun MainContent() {
                     modifier = Modifier.padding(innerPadding)
             ) {
                 composable("expense/list") {
-                    ExpenseListScreen(navController, expenseViewModel, sessionManager)
+                    ExpenseListScreen(
+                            navController = navController,
+                            expenseViewModel = expenseViewModel,
+                            sessionManager = sessionManager
+                    )
                 }
+
                 composable("expense/create") {
-                    CreateExpenseScreen(navController, expenseViewModel)
+                    CreateExpenseScreen(
+                            navController = navController,
+                            expenseViewModel = expenseViewModel
+                    )
                 }
+
                 composable("expense/filter") {
-                    ExpenseFilterScreen(navController, expenseViewModel)
+                    ExpenseFilterScreen(
+                            navController = navController,
+                            expenseViewModel = expenseViewModel
+                    )
                 }
+
                 composable(
                         route = "expense/edit/{expenseId}",
-                        arguments = listOf(navArgument("expenseId") { type = NavType.IntType })
+                        arguments = listOf(navArgument("expenseId") { type = NavType.IntType }),
+                        enterTransition = {
+                            slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300))
+                        },
+                        exitTransition = {
+                            slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
+                        }
                 ) { backStackEntry ->
                     val expenseId = backStackEntry.arguments?.getInt("expenseId")
                     if (expenseId != null) {
-                        EditExpenseScreen(navController, expenseViewModel, expenseId)
+                        EditExpenseScreen(
+                                navController = navController,
+                                expenseViewModel = expenseViewModel,
+                                expenseId = expenseId
+                        )
                     }
                 }
+
                 composable("sent") { SentToServerScreen() }
             }
         }
