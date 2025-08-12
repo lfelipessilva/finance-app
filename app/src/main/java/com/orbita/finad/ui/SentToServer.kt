@@ -88,21 +88,6 @@ fun SentToServerScreen() {
                     Text(text = "Retry All Failed (${failedExpenses})")
                 }
             }
-
-            Text(
-                    text = notificationStatus,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-                OutlinedButton(
-                        onClick = {
-                            context.startActivity(
-                                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                ) { Text(text = "Enable Notification Access") }
         }
     }
 }

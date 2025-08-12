@@ -11,6 +11,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
@@ -20,8 +23,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.orbita.finad.data.local.SessionManager
 import com.orbita.finad.data.remote.ApiClient
+import com.orbita.finad.services.NotificationPermissionChecker
 import com.orbita.finad.ui.ExpenseFilterScreen
 import com.orbita.finad.ui.LoginScreen
+import com.orbita.finad.ui.NotificationPermissionScreen
 import com.orbita.finad.ui.SentToServerScreen
 import com.orbita.finad.ui.component.BottomBar
 import com.orbita.finad.ui.component.BottomNavItem
@@ -49,12 +54,18 @@ fun MainContent() {
     val navController = rememberNavController()
     val expenseViewModel = ExpenseViewModel()
 
+    var showNotificationPermission by remember {
+        mutableStateOf(!NotificationPermissionChecker.isNotificationPermissionGranted(context))
+    }
+
     if (!isLoggedIn) {
         LoginScreen(onLoginSuccess = {})
+    } else if (showNotificationPermission) {
+        NotificationPermissionScreen(onPermissionGranted = { showNotificationPermission = false })
     } else {
         val bottomNavItems =
                 listOf(
-                    BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
+                        BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
                         BottomNavItem("Criar", "expense/create", Icons.Default.Done),
                         BottomNavItem("Sent", "sent", Icons.Default.Notifications)
                 )
