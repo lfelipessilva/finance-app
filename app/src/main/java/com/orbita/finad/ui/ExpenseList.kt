@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,11 +40,12 @@ fun ExpenseListScreen(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val listState = rememberLazyListState()
 
-    // Get user name from session manager
     val user = sessionManager.getUser()
     val userName = user?.name ?: "usuário"
 
     LaunchedEffect(Unit) {
+        if (expenseViewModel.expenses.isNotEmpty()) return@LaunchedEffect
+
         expenseViewModel.fetchExpenses()
         expenseViewModel.fetchExpensesByCategory()
         expenseViewModel.fetchAllCategories()
@@ -72,8 +75,25 @@ fun ExpenseListScreen(
             topBar = {
                 CustomTopAppBar(
                         title = "Olá, $userName",
-                        //                        onSearch = {
-                        // navController.navigate("expense/filter") },
+                        rightItem = {
+                            IconButton(
+                                    onClick = { expenseViewModel.refreshData() },
+                                    enabled = !expenseViewModel.isLoading
+                            ) {
+                                if (expenseViewModel.isLoading) {
+                                    CircularProgressIndicator(
+                                            modifier = Modifier.size(20.dp),
+                                            strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Icon(
+                                            Icons.Default.Refresh,
+                                            contentDescription = "Atualizar",
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        },
                         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 )
             },
@@ -85,7 +105,7 @@ fun ExpenseListScreen(
                 } else {
                     LazyColumn(
                             state = listState,
-                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background)
                     ) {
                         if (expenseViewModel.expenses.isEmpty()) {
                             item {

@@ -22,6 +22,7 @@ import com.orbita.finad.data.local.SessionManager
 import com.orbita.finad.data.remote.ApiClient
 import com.orbita.finad.ui.BottomBar
 import com.orbita.finad.ui.BottomNavItem
+import com.orbita.finad.ui.CreateExpenseScreen
 import com.orbita.finad.ui.EditExpenseScreen
 import com.orbita.finad.ui.ExpenseFilterScreen
 import com.orbita.finad.ui.ExpenseListScreen
@@ -54,6 +55,7 @@ fun MainContent() {
         val bottomNavItems =
                 listOf(
                         BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
+                        BottomNavItem("Criar", "expense/create", Icons.Default.Done),
                         BottomNavItem("Sent", "sent", Icons.Default.Notifications)
                 )
 
@@ -65,6 +67,9 @@ fun MainContent() {
             ) {
                 composable("expense/list") {
                     ExpenseListScreen(navController, expenseViewModel, sessionManager)
+                }
+                composable("expense/create") {
+                    CreateExpenseScreen(navController, expenseViewModel)
                 }
                 composable("expense/filter") {
                     ExpenseFilterScreen(navController, expenseViewModel)
