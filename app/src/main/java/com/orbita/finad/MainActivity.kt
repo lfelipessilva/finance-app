@@ -20,14 +20,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.orbita.finad.data.local.SessionManager
 import com.orbita.finad.data.remote.ApiClient
-import com.orbita.finad.ui.BottomBar
-import com.orbita.finad.ui.BottomNavItem
-import com.orbita.finad.ui.CreateExpenseScreen
-import com.orbita.finad.ui.EditExpenseScreen
 import com.orbita.finad.ui.ExpenseFilterScreen
-import com.orbita.finad.ui.ExpenseListScreen
 import com.orbita.finad.ui.LoginScreen
 import com.orbita.finad.ui.SentToServerScreen
+import com.orbita.finad.ui.component.BottomBar
+import com.orbita.finad.ui.component.BottomNavItem
+import com.orbita.finad.ui.expense.CreateExpenseScreen
+import com.orbita.finad.ui.expense.EditExpenseScreen
+import com.orbita.finad.ui.expense.ExpenseListScreen
 import com.orbita.finad.ui.theme.FinadTheme
 import com.orbita.finad.views.ExpenseViewModel
 
@@ -54,7 +54,7 @@ fun MainContent() {
     } else {
         val bottomNavItems =
                 listOf(
-                        BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
+                    BottomNavItem("Gastos", "expense/list", Icons.Default.Done),
                         BottomNavItem("Criar", "expense/create", Icons.Default.Done),
                         BottomNavItem("Sent", "sent", Icons.Default.Notifications)
                 )
