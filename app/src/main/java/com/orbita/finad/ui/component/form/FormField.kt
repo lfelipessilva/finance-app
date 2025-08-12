@@ -28,7 +28,7 @@ fun FormField(
         isError: Boolean = false,
         errorMessage: String? = null
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,

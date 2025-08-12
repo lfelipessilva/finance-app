@@ -13,7 +13,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.orbita.finad.ui.component.CategorySelectionDialog
-import com.orbita.finad.ui.component.FormHeader
 import com.orbita.finad.ui.component.form.CategorySelectionField
 import com.orbita.finad.ui.component.form.FormContainer
 import com.orbita.finad.ui.component.form.FormField
@@ -108,12 +107,7 @@ fun EditExpenseScreen(
                 )
 
                 FormContainer(
-                        header = {
-                                FormHeader(
-                                        title = "Detalhes da Despesa",
-                                        subtitle = "Atualize as informações da sua despesa"
-                                )
-                        },
+                        header = {},
                         content = {
                                 FormField(
                                         label = "Nome",
@@ -168,10 +162,15 @@ fun EditExpenseScreen(
                                                                 placeholder = "Banco"
                                                         ),
                                                         FormFieldData(
-                                                                label = "Cartão",
+                                                                label = "Cartão *",
                                                                 value = card,
-                                                                onValueChange = { card = it },
-                                                                placeholder = "Cartão"
+                                                                onValueChange = {
+                                                                        if (it.length <= 4) {
+                                                                                card = it
+                                                                        }
+                                                                },
+                                                                keyboardType = KeyboardType.Number,
+                                                                placeholder = "0000"
                                                         )
                                                 )
                                 )
