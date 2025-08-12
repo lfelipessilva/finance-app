@@ -38,11 +38,12 @@ fun ExpenseListScreen(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val listState = rememberLazyListState()
 
-    // Get user name from session manager
     val user = sessionManager.getUser()
     val userName = user?.name ?: "usuário"
 
     LaunchedEffect(Unit) {
+        if (expenseViewModel.expenses.isNotEmpty()) return@LaunchedEffect
+
         expenseViewModel.fetchExpenses()
         expenseViewModel.fetchExpensesByCategory()
         expenseViewModel.fetchAllCategories()

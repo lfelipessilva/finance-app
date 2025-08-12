@@ -181,6 +181,24 @@ class ExpenseViewModel() : ViewModel() {
         }
     }
 
+    fun createExpense(dto: CreateExpenseDto, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                ExpenseService.createExpense(dto) { success ->
+                    if (success) {
+                        callback(true)
+                        refreshData()
+                    } else {
+                        callback(false)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback(false)
+            }
+        }
+    }
+
     fun deleteExpense(expenseId: Int, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
