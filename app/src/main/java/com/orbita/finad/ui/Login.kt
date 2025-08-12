@@ -1,5 +1,7 @@
 package com.orbita.finad.ui
 
+import android.credentials.ClearCredentialStateRequest
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
@@ -23,6 +25,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.gms.auth.api.identity.*
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.orbita.finad.BuildConfig
 import com.orbita.finad.data.local.SessionManager
 import com.orbita.finad.data.remote.AuthService
 import java.security.MessageDigest
@@ -55,33 +58,42 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
     fun startGoogleSignIn() {
         isLoading = true
         uiState = LoginUiState.Loading
+
         coroutineScope.launch {
             val credentialManager = CredentialManager.create(context)
+
+            try {
+                credentialManager.clearCredentialState(
+                        androidx.credentials.ClearCredentialStateRequest()
+                )
+            } catch (e: Exception) {
+                Log.w("GoogleSignIn", "Failed to clear credential state", e)
+            }
+
             val googleSignInOption =
-                    GetSignInWithGoogleOption.Builder(
-                                    serverClientId = com.orbita.finad.BuildConfig.GOOGLE_CLIENT_ID
-                            )
+                    GetSignInWithGoogleOption.Builder(serverClientId = BuildConfig.GOOGLE_CLIENT_ID)
                             .setNonce(getNonce())
                             .build()
+
             val request =
                     GetCredentialRequest.Builder().addCredentialOption(googleSignInOption).build()
+
             try {
-                val result = credentialManager.getCredential(context = context, request = request)
+                val result = credentialManager.getCredential(context, request)
                 val credential = result.credential
+
                 if (credential is androidx.credentials.CustomCredential &&
                                 credential.type ==
                                         GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                 ) {
                     val googleIdTokenCredential =
                             GoogleIdTokenCredential.createFrom(credential.data)
-
                     val idToken = googleIdTokenCredential.idToken
 
                     AuthService.authenticate(idToken) { success, data ->
                         if (success && data != null) {
                             val sessionManager = SessionManager.getInstance(context)
                             sessionManager.saveSession(data.accessToken, data.user)
-
                             onLoginSuccess()
                         } else {
                             uiState = LoginUiState.Error("Falha na autenticação com o servidor.")
@@ -93,10 +105,15 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                     isLoading = false
                 }
             } catch (e: GetCredentialException) {
+                Log.e("GoogleSignIn", "Error type: ${e.type}, message: ${e.localizedMessage}", e)
                 uiState =
                         LoginUiState.Error(
                                 e.localizedMessage ?: "Erro desconhecido ao fazer login."
                         )
+                isLoading = false
+            } catch (e: Exception) {
+                Log.e("GoogleSignIn", "Unexpected error", e)
+                uiState = LoginUiState.Error("Erro inesperado ao fazer login.")
                 isLoading = false
             }
         }
