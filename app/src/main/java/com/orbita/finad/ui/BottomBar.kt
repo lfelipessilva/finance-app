@@ -1,5 +1,6 @@
 package com.orbita.finad.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,49 +22,63 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun BottomBar(navController: NavHostController, items: List<BottomNavItem>) {
-        val backStackEntry = navController.currentBackStackEntryAsState()
+        val backStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = backStackEntry?.destination?.route
+        val shouldShow = currentRoute?.contains("/edit") != true
 
-        Row(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .height(56.dp)
-                                .background(MaterialTheme.colorScheme.surface),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+        AnimatedVisibility(
+                visible = shouldShow,
         ) {
-                items.forEach { item ->
-                        val selected = item.page == backStackEntry.value?.destination?.route
-                        val contentColor =
-                                if (selected) MaterialTheme.colorScheme.secondary
-                                else MaterialTheme.colorScheme.onSurfaceVariant
+                Row(
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .height(56.dp)
+                                        .background(MaterialTheme.colorScheme.surface),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                        items.forEach { item ->
+                                val isSelected = item.page == currentRoute
+                                val contentColor =
+                                        if (isSelected) {
+                                                MaterialTheme.colorScheme.secondary
+                                        } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
 
-                        Column(
-                                modifier =
-                                        Modifier.clickable(
-                                                        indication = null,
-                                                        interactionSource =
-                                                                remember {
-                                                                        MutableInteractionSource()
+                                Column(
+                                        modifier =
+                                                Modifier.clickable(
+                                                                indication = null,
+                                                                interactionSource =
+                                                                        remember {
+                                                                                MutableInteractionSource()
+                                                                        }
+                                                        ) {
+                                                                if (!isSelected) {
+                                                                        navController.navigate(
+                                                                                item.page
+                                                                        )
                                                                 }
-                                                ) {
-                                                        if (!selected)
-                                                                navController.navigate(item.page)
-                                                }
-                                                .padding(vertical = 4.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                        ) {
-                                Icon(
-                                        imageVector = item.icon,
-                                        contentDescription = item.label,
-                                        tint = contentColor
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                        text = item.label,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = contentColor
-                                )
+                                                        }
+                                                        .padding(vertical = 4.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                ) {
+                                        Icon(
+                                                imageVector = item.icon,
+                                                contentDescription = item.label,
+                                                tint = contentColor
+                                        )
+
+                                        Spacer(modifier = Modifier.height(2.dp))
+
+                                        Text(
+                                                text = item.label,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = contentColor
+                                        )
+                                }
                         }
                 }
         }
